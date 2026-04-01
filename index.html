@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ë§¤í¬ë¡ ëìë³´ë</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg:#0f1117; --card:#1a1d27; --border:#2a2d3a;
+    --text:#e2e8f0; --muted:#8892a4; --accent:#1a73e8;
+    --green:#22c55e; --red:#ef4444; --yellow:#f59e0b; --purple:#a78bfa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;font-size:14px;}
+
+  header{
+    background:linear-gradient(135deg,#0d1b3e 0%,#1a1d27 100%);
+    border-bottom:1px solid var(--border);padding:18px 28px;
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+  }
+  header h1{font-size:22px;font-weight:700;color:#fff;letter-spacing:1px;}
+  header h1 span{color:var(--accent);}
+  #status{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;}
+  #status .dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  #lastUpdated{color:var(--accent);font-weight:600;}
+
+  .main{padding:20px 28px;}
+  .grid-top{display:grid;grid-template-columns:380px 1fr;gap:18px;margin-bottom:18px;}
+  .grid-charts{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;overflow:hidden;}
+  .card-title{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--muted);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+
+  /* KPI */
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+  .kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+  .kpi-label{font-size:11px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.8px;}
+  .kpi-value{font-size:22px;font-weight:700;}
+  .kpi-change{font-size:12px;margin-top:4px;}
+
+  /* ìì½ íì´ë¸ */
+  #summaryTable{width:100%;border-collapse:collapse;font-size:12.5px;}
+  #summaryTable thead tr{background:#22263a;}
+  #summaryTable th{padding:7px 10px;text-align:left;color:var(--muted);font-weight:600;font-size:11px;letter-spacing:.5px;}
+  #summaryTable td{padding:6px 10px;border-bottom:1px solid #22263a;}
+  #summaryTable tr:last-child td{border-bottom:none;}
+  #summaryTable tr:hover td{background:#22263a;}
+  .pos{color:var(--red);font-weight:600;}
+  .neg{color:var(--green);font-weight:600;}
+  .zero{color:var(--muted);}
+
+  /* ê²ì¦ í¨ë */
+  #validationPanel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:18px;}
+  .v-title{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--muted);padding-bottom:10px;border-bottom:1px solid var(--border);
+    margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .v-badge{padding:2px 10px;border-radius:20px;font-size:11px;}
+  .v-badge.pass{background:#14532d;color:#4ade80;border:1px solid #166534;}
+  .v-badge.warn{background:#451a03;color:#fb923c;border:1px solid #7c2d12;}
+  .v-badge.idle{background:#1e2035;color:var(--muted);border:1px solid var(--border);}
+  #validationGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;}
+  .v-item{background:#13151f;border:1px solid var(--border);border-radius:8px;padding:9px 12px;
+    display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;}
+  .v-item .v-name{color:var(--muted);min-width:100px;}
+  .v-item .v-vals{display:flex;gap:6px;align-items:center;font-size:11.5px;}
+  .v-item .v-ref{color:#6b7280;}
+  .v-item .v-got{font-weight:700;}
+  .v-item.ok{border-color:#166534;}.v-item.ok .v-got{color:#4ade80;}
+  .v-item.diff{border-color:#92400e;}.v-item.diff .v-got{color:#fb923c;}
+  .v-item.miss{border-color:#374151;opacity:.6;}
+  .v-item.internal{border-color:#1e3a5f;}.v-item.internal .v-got{color:#60a5fa;}
+  .v-section-label{grid-column:1/-1;font-size:11px;font-weight:700;color:var(--accent);
+    letter-spacing:1px;text-transform:uppercase;padding:6px 0 2px 2px;
+    border-bottom:1px solid var(--border);margin-top:4px;}
+  .v-source-tag{font-size:10px;padding:1px 7px;border-radius:10px;
+    background:#1e2035;color:#60a5fa;border:1px solid #2a3a5a;margin-left:4px;}
+  #validationSummary{margin-top:10px;font-size:12px;color:var(--muted);line-height:1.8;}
+
+  /* ìë¬ ë°°ë */
+  #errorBanner{display:none;padding:12px 20px;border-radius:8px;margin-bottom:16px;font-size:13px;}
+
+  .chart-wrap{position:relative;height:300px;}
+
+  #noDataMsg{display:none;text-align:center;padding:60px 20px;color:var(--muted);}
+  #noDataMsg h2{font-size:18px;margin-bottom:10px;color:var(--text);}
+
+  @media(max-width:1100px){
+    .grid-top{grid-template-columns:1fr;}
+    .grid-charts{grid-template-columns:1fr;}
+    .kpi-grid{grid-template-columns:repeat(2,1fr);}
+  }
+  @media(max-width:768px){
+    .main{padding:12px 14px;}
+    header{padding:12px 16px;}
+    header h1{font-size:18px;}
+    .kpi-value{font-size:19px;}
+    .kpi-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
+    .chart-wrap{height:230px;}
+    #validationGrid{grid-template-columns:1fr 1fr;}
+  }
+  @media(max-width:480px){
+    .main{padding:8px 10px;}
+    header{padding:10px 12px;}
+    header h1{font-size:15px;}
+    body{font-size:13px;}
+    .kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px;}
+    .kpi{padding:10px 11px;}
+    .kpi-value{font-size:16px;}
+    .kpi-label{font-size:10px;}
+    .kpi-change{font-size:11px;}
+    .chart-wrap{height:190px;}
+    .card{padding:12px 10px;}
+    .card-title{font-size:11px;}
+    #summaryTable{font-size:11px;}
+    #summaryTable th,#summaryTable td{padding:4px 6px;}
+    #validationGrid{grid-template-columns:1fr;}
+    .v-item{flex-direction:column;align-items:flex-start;gap:4px;}
+    .v-item .v-vals{flex-wrap:wrap;}
+    #status{font-size:11px;}
+    #refreshBtn{font-size:11px;padding:4px 8px;}
+  }
+  #refreshBtn{
+    background:transparent;border:1px solid var(--accent);color:var(--accent);
+    border-radius:6px;padding:5px 13px;font-size:12px;font-weight:600;
+    cursor:pointer;display:flex;align-items:center;gap:5px;
+    transition:background .2s,opacity .2s;white-space:nowrap;
+  }
+  #refreshBtn:hover{background:rgba(26,115,232,.18);}
+  #refreshBtn:disabled{opacity:.45;cursor:not-allowed;}
+</style>
+</head>
+<body>
+<header>
+  <h1>ð <span>ë§¤í¬ë¡</span> ëìë³´ë</h1>
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <div id="status">
+      <div class="dot"></div>
+      <span>ìµì¢ ìë°ì´í¸: </span><span id="lastUpdated">â</span>
+    </div>
+    <button id="refreshBtn" onclick="doRefresh()" title="íì´ì§ë¥¼ ì¬ë¡ëí´ ìµì  fred_data.jsë¥¼ ì½ìµëë¤&#10;ë°ì´í° ìë°ì´í¸: Cowork ì¬ì´ëë° â macro-dashboard-daily â Run now">ð ìë¡ê³ ì¹¨</button>
+  </div>
+</header>
+
+<div class="main">
+  <div id="errorBanner"></div>
+
+  <!-- ë°ì´í° ìì ë ìë´ -->
+  <div id="noDataMsg">
+    <h2>â³ ë°ì´í°ê° ìì§ ììµëë¤</h2>
+    <p>Cowork ì¬ì´ëë° â <strong>macro-dashboard-daily</strong> â <strong>Run now</strong> ë¥¼ í´ë¦­í´ ë°ì´í°ë¥¼ ìì§íì¸ì.<br>
+    ìë£ í <strong>ð ìë¡ê³ ì¹¨</strong> ë²í¼ì ëë¬ íì´ì§ë¥¼ ì¬ë¡ëíë©´ ë©ëë¤.</p>
+  </div>
+
+  <!-- ê²ì¦ í¨ë -->
+  <div id="validationPanel" style="display:none">
+    <div class="v-title">
+      ð ì¸ë¶ ì¶ì² êµì°¨ ê²ì¦
+      <span class="v-badge idle" id="vBadge">â</span>
+      <span id="vSourceTags" style="display:flex;gap:6px;flex-wrap:wrap;margin-left:auto"></span>
+    </div>
+    <div id="validationGrid"></div>
+    <div id="validationSummary"></div>
+  </div>
+
+  <!-- KPI -->
+  <div class="kpi-grid" id="kpiGrid" style="display:none">
+    <div class="kpi"><div class="kpi-label">SOFR</div><div class="kpi-value" id="kpi-sofr">â</div><div class="kpi-change" id="kpi-sofr-c"></div></div>
+    <div class="kpi"><div class="kpi-label">IORB</div><div class="kpi-value" id="kpi-iorb">â</div><div class="kpi-change" id="kpi-iorb-c"></div></div>
+    <div class="kpi"><div class="kpi-label">10Y êµ­ì±</div><div class="kpi-value" id="kpi-10y">â</div><div class="kpi-change" id="kpi-10y-c"></div></div>
+    <div class="kpi"><div class="kpi-label">ì¥ë¨ê¸°ì°¨ (10Y-3M)</div><div class="kpi-value" id="kpi-spread">â</div><div class="kpi-change" id="kpi-spread-c"></div></div>
+    <div class="kpi"><div class="kpi-label">TGA ìê³ </div><div class="kpi-value" id="kpi-tga">â</div><div class="kpi-change" id="kpi-tga-c"></div></div>
+    <div class="kpi"><div class="kpi-label">ì¤ë¹ê¸</div><div class="kpi-value" id="kpi-res">â</div><div class="kpi-change" id="kpi-res-c"></div></div>
+    <div class="kpi"><div class="kpi-label">ON RRP</div><div class="kpi-value" id="kpi-rrp">â</div><div class="kpi-change" id="kpi-rrp-c"></div></div>
+    <div class="kpi"><div class="kpi-label">NTFS (ì ëì§í)</div><div class="kpi-value" id="kpi-ntfs">â</div><div class="kpi-change" id="kpi-ntfs-c"></div></div>
+  </div>
+
+  <!-- ìì½í + ì¼ëì»¤ë¸ -->
+  <div class="grid-top" id="gridTop" style="display:none">
+    <div class="card">
+      <div class="card-title">ð ì§í ìì½</div>
+      <div style="font-size:10px;color:#60a5fa;margin-bottom:6px">â syncDate ê¸°ì¤ ìµì  ê°ì©ì¼ì (ê¸°ì¤ì¼ê³¼ ìì´)</div>
+      <table id="summaryTable">
+        <thead><tr><th>ë°íì¼</th><th>ì§íëª</th><th>íì¬ê°</th><th>ì ì¼ëë¹</th></tr></thead>
+        <tbody id="summaryBody"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">ð ë¯¸êµ­ì± ì¼ëì»¤ë¸</div>
+      <div class="chart-wrap"><canvas id="yieldChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ì°¨í¸ë¤ -->
+  <div class="grid-charts" id="gridCharts" style="display:none">
+    <div class="card">
+      <div class="card-title">ð ê¸ë¦¬ ì¤íë ë ì¶ì´ <span style="font-size:10px;font-weight:400;color:#4b5563;text-transform:none;letter-spacing:0">Â· ê° ì¼ìë³ ìµì  ì´ì©ê°ë¥ê° ê¸°ì¤</span></div>
+      <div class="chart-wrap"><canvas id="spreadChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">ð§ ì ëì± ëí¥ <span style="font-size:10px;font-weight:400;color:#4b5563;text-transform:none;letter-spacing:0">Â· TGA / ì¤ë¹ê¸ / ON RRP (ì£¼ê°)</span></div>
+      <div class="chart-wrap"><canvas id="liquidityChart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<script src="fred_data.js" onerror="void 0"></script>
+<script>
+// ============================================================
+// ì¤ì¼ì¤ íì¤í¬ê° ì´ ì¤ ìë FRED_DATA ë¥¼ ì£¼ìí©ëë¤
+// ============================================================
+const FRED_DATA = /*FRED_DATA_PLACEHOLDER*/null/*END_PLACEHOLDER*/;
+
+// ============================================================
+const TREASURY_IDS = {
+  DGS1MO:'1M',DGS3MO:'3M',DGS6MO:'6M',DGS1:'1Y',
+  DGS2:'2Y',DGS3:'3Y',DGS5:'5Y',DGS7:'7Y',
+  DGS10:'10Y',DGS20:'20Y',DGS30:'30Y'
+};
+const OTHER_IDS = {T10Y3M:'ì¥ë¨ê¸°ì°¨(10Y-3M)',SOFR:'SOFR',IORB:'IORB',WDTGAL:'TGA',WRESBAL:'ì¤ë¹ê¸',RRPONTSYD:'ON RRP'};
+const ALL_IDS = {...TREASURY_IDS,...OTHER_IDS};
+
+let fetched = {};
+let charts  = {};
+
+const findEntry = (id,date) => (fetched[id]||[]).find(o=>o.date<=date)||null;
+const findVal   = (id,date) => { const e=findEntry(id,date); return (e&&e.value!=='.')?parseFloat(e.value):null; };
+const calcNTFS  = d => { const a=findVal('DGS3MO',d),b=findVal('DGS1',d),c=findVal('DGS2',d); return (a!==null&&b!==null&&c!==null)?(2.25*c-1.25*b-a):null; };
+const pastDate  = (base,days) => { const d=new Date(base); d.setDate(d.getDate()-days); return d.toISOString().split('T')[0]; };
+const cc        = (v,inv=false) => (!v||v===0)?'zero':(inv?v<0:v>0)?'pos':'neg';
+
+// ââ KPI ââ
+function setKPI(id,val,ch,fmt,inv=false){
+  const el=document.getElementById('kpi-'+id), ec=document.getElementById('kpi-'+id+'-c');
+  if(!el||val===null)return;
+  el.textContent=fmt(val);
+  if(ch!==null){ const s=ch>0?'+':''; ec.textContent=s+ch.toFixed(3); ec.className='kpi-change '+cc(ch,inv); }
+}
+
+// ââ ìì½ íì´ë¸ ââ
+function buildTable(sync,prev){
+  const tb=document.getElementById('summaryBody'); tb.innerHTML='';
+  const addSection=t=>{ const tr=document.createElement('tr');
+    tr.innerHTML<`<td colspan="4" style="background:#1f2235;color:var(--accent);font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:5px 10px">${t}</td>`;
+    tb.appendChild(tr); };
+  const addRow=(date,name,val,diff,sub=false,inv=false,refDate='')=>{
+    const tr=document.createElement('tr'); if(sub)tr.className='sub-row';
+    const dn=parseFloat(diff), ds=isNaN(dn)?diff:(dn>0?'+':'')+dn.toFixed(sub?4:3);
+    const cls=isNaN(dn)?'':cc(dn,inv);
+    // ê¸°ì¤ì¼(syncDate)ê³¼ ì¤ì  ë°íì¼ì´ ë¤ë¥´ë©´ íëìì¼ë¡ ê°ì¡°
+    const dateDiff=refDate&&date&&date!==refDate?`<span style="color:#60a5fa;font-size:10px" title="ìµì  ê°ì©ì¼ì ê¸°ì¤">â</span> `:'';
+    tr.innerHTML=`<td style="color:var(--muted);font-size:11px">${dateDiff}${date||''}</td><td>${name}</td><td><b>${val}</b></td><td class="${cls}">${ds}</td>`;
+    tb.appendChild(tr); };
+
+  addSection('ð¦ ë¯¸êµ­ êµ­ì± ììµë¥ ');
+  Object.keys(TREASURY_IDS).forEach(id=>{
+    const c=findEntry(id,sync),p=findEntry(id,prev); if(!c||c.value==='.')return;
+    const cv=parseFloat(c.value),pv=(p&&p.value!=='.')?parseFloat(p.value):cv;
+    addRow(c.date,TREASURY_IDS[id],cv.toFixed(3)+'%',cv-pv,false,true,sync); });
+
+  addSection('ð ì¤íë ë');
+  let t10=findEntry('T10Y3M',sync); const d3=findEntry('DGS3MO',sync);
+  if(t10&&d3) t10={date:d3.date,value:t10.value};
+  if(t10&&t10.value!==null&&t10.value!=='.'){
+    const cv=parseFloat(t10.value),pt=findEntry('T10Y3M',prev);
+    const pv=(pt&&pt.value!=='.')?parseFloat(pt.value):cv;
+    addRow(t10.date,'ì¥ë¨ê¸°ì°¨(10Y-3M)',cv.toFixed(3)+'%',cv-pv,false,false);
+    const cn=calcNTFS(t10.date),pn=calcNTFS((findEntry('DGS3MO',prev)||{}).date||t10.date);
+    if(cn!==null) addRow(t10.date,'â¶ NTFS (ë¨ê¸°ì ëì§í)',cn.toFixed(4),cn-(pn||cn),true,false); }
+
+  addSection('ð° ì ì±ê¸ë¦¬');
+  ['SOFR','IORB'].forEach(id=>{
+    const c=findEntry(id,sync),p=findEntry(id,prev); if(!c||c.value==='.')return;
+    const cv=parseFloat(c.value),pv=(p&&p.value!=='.')?parseFloat(p.value):cv;
+    addRow(c.date,id,cv.toFixed(3)+'%',cv-pv,false,true,sync); });
+  const sv=findVal('SOFR',sync),iv=findVal('IORB',sync),sp=findVal('SOFR',prev),ip=findVal('IORB',prev);
+  const sofrActDate=(findEntry('SOFR',sync)||{}).date||sync;
+  const iorbActDate=(findEntry('IORB',sync)||{}).date||sync;
+  if(sv!==null&&iv!==null){
+    const csi=sv-iv,psi=(sp!==null&&ip!==null)?sp-ip:csi;
+    // ì¤íë ë í: ë ìê³ì´ ë ì§ê° ë¤ë¥¼ ê²½ì° ê°ê° ëªì
+    const spreadDateLabel=sofrActDate!==iorbActDate
+      ?`<span style="font-size:10px;color:#60a5fa">(SOFR:${sofrActDate} / IORB:${iorbActDate})</span>`
+      :sofrActDate;
+    const tr=document.createElement('tr'); tr.className='sub-row';
+    const dn=csi-psi, ds=(dn>0?'+':'')+dn.toFixed(4);
+    const cls=cc(dn,false);
+    tr.innerHTML=`<td style="color:var(--muted);font-size:10px;line-height:1.3">${spreadDateLabel}</td><td>â¶ SOFR-IORB ì¤íë ë <span style="font-size:9px;color:#374151" title="ê° ìê³ì´ì syncDate ê¸°ì¤ ìµì  ì´ì©ê°ë¥ ì¼ì ì ì©">â¹</span></td><td><b>${csi.toFixed(4)}%</b></td><td class="${cls}">${ds}</td>`;
+    tb.appendChild(tr); }
+
+  addSection('ð§ ì ëì± ì§í');
+  ['WDTGAL','WRESBAL','RRPONTSYD'].forEach(id=>{
+    const c=findEntry(id,sync),p=findEntry(id,prev); if(!c||c.value==='.')return;
+    const div=(id==='RRPONTSYD')?1:1000,cv=parseFloat(c.value)/div,pv=(p&&p.value!=='.')?parseFloat(p.value)/div:cv;
+    const df=cv-pv,sg=df>0?'+':'';
+    addRow(c.date,ALL_IDS[id],'$'+cv.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:(id==='RRPONTSYD'?0:2)})+' B',
+      sg+'$'+Math.abs(df).toFixed(2)+' B',false,false,sync); }); }
+
+// ââ ì°¨í¸ ê³µíµ ââ
+const CD=()=>({responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{position:'top',labels:{color:'#8892a4',font:{size:11},boxWidth:12}},
+    tooltip:{mode:'index',intersect:false,backgroundColor:'#1a1d27',borderColor:'#2a2d3a',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#8892a4'}},
+  scales:{x:{ticks:{color:'#8892a4',font:{size:10},maxTicksLimit:8},grid:{color:'#22263a'}},
+          y:{ticks:{color:'#8892a4',font:{size:11}},grid:{color:'#22263a'}}}});
+
+function buildYieldChart(sync){
+  const mk=(label,date,color,lw,dash=[])=>({label,borderColor:color,backgroundColor:'transparent',
+    borderWidth:lw,borderDash:dash,pointRadius:lw>3?5:2,
+    data:Object.keys(TREASURY_IDS).map(id=>findVal(id,date))});
+  const vals=Object.keys(TREASURY_IDS).map(id=>findVal(id,sync)).filter(v=>v!==null);
+  const minY=Math.floor(Math.min(...vals)*10)/10-.2, maxY=Math.ceil(Math.max(...vals)*10)/10+.2;
+  if(charts.yield)charts.yield.destroy();
+  charts.yield=new Chart(document.getElementById('yieldChart'),{type:'line',
+    data:{labels:Object.values(TREASURY_IDS),datasets:[
+      mk('íì¬',sync,'#ef4444',4),mk('1M ì ',pastDate(sync,30),'#f59e0b',2,[5,5]),
+      mk('6M ì ',pastDate(sync,180),'#6366f1',2,[5,5]),mk('1Y ì ',pastDate(sync,365),'#22c55e',2,[5,5])]},
+    options:{...CD(),scales:{...CD().scales,y:{...CD().scales.y,
+      viewWindow:{min:minY,max:maxY},ticks:{...CD().scales.y.ticks,callback:v=>v!=null?v.toFixed(2)+'%':''}}}}});}
+
+function buildSpreadChart(sync){
+  const obs=(fetched['SOFR']||[]).slice(0,150);
+  const labels=[],si=[],ntfs=[],t10=[];
+  obs.forEach(o=>{const d=o.date,sv=parseFloat(o.value),iv=findVal('IORB',d),nv=calcNTFS(d),tv=findVal('T10Y3M',d);
+    if(!isNaN(sv)&&iv!==null&&nv!==null&&tv!==null){labels.push(d);si.push((sv-iv).toFixed(4));ntfs.push(nv.toFixed(4));t10.push(tv.toFixed(4));}});
+  const ds=(label,data,color,lw=2)=>({label,data,borderColor:color,backgroundColor:'transparent',borderWidth:lw,pointRadius:0,tension:.3});
+  if(charts.spread)charts.spread.destroy();
+  charts.spread=new Chart(document.getElementById('spreadChart'),{type:'line',
+    data:{labels,datasets:[ds('SOFR-IORB',si,'#ef4444',2.5),ds('NTFS',ntfs,'#3b82f6',2),ds('ì¥ë¨ê¸°ì°¨(10Y-3M)',t10,'#22c55e',2)]},
+    options:{...CD(),scales:{...CD().scales,y:{...CD().scales.y,ticks:{...CD().scales.y.ticks,callback:v=>v!=null?parseFloat(v).toFixed(2)+'%':''}}}}}); }
+
+function buildLiquidityChart(){
+  const obs=(fetched['WRESBAL']||[]).slice(0,156);
+  const labels=[],tga=[],res=[],rrp=[];
+  obs.forEach(o=>{const tv=findVal('WDTGAL',o.date),rv=parseFloat(o.value),rv2=findVal('RRPONTSYD',o.date);
+    if(tv!==null&&rv2!==null){labels.push(o.date);tga.push((tv/1000).toFixed(2));res.push((rv/1000).toFixed(2));rrp.push(rv2.toFixed(2));}});
+  const ds=(label,data,color,lw=2)=>({label,data,borderColor:color,backgroundColor:'transparent',borderWidth:lw,pointRadius:0,tension:.3});
+  if(charts.liquidity)charts.liquidity.destroy();
+  charts.liquidity=new Chart(document.getElementById('liquidityChart'),{type:'line',
+    data:{labels,datasets:[ds('TGA',tga,'#a78bfa',2),ds('ì¤ë¹ê¸',res,'#ef4444',2.5),ds('ON RRP',rrp,'#3b82f6',2)]},
+    options:{...CD(),scales:{...CD().scales,y:{...CD().scales.y,ticks:{...CD().scales.y.ticks,callback:v=>v!=null?'$'+parseFloat(v).toFixed(0)+'B':''}}}}});}
+
+// ââ êµì°¨ ê²ì¦ (ì¸ë¶ API â HTTP íê²½ììë§ ëì, ì¤í¨í´ë ëìë³´ëë íì) ââ
+async function runValidation(sync){
+  const grid=document.getElementById('validationGrid');
+  const badge=document.getElementById('vBadge');
+  const summary=document.getElementById('validationSummary');
+  grid.innerHTML=''; let pass=0,warn=0,unavail=0;
+
+  const addSec=t=>{const d=document.createElement('div');d.className='v-section-label';d.textContent=t;grid.appendChild(d);};
+  const addItem=(label,src,fredV,extV,tol,isLiq=false,mode='compare')=>{
+    const item=document.createElement('div'); item.className='v-item';
+    const dec=isLiq?2:3;
+    if(mode==='unavailable'||extV===null){
+      unavail++; item.classList.add('miss');
+      item.innerHTML<`<span class="v-name">${label}<span class="v-source-tag">${src}</span></span>
+        <span class="v-vals"><span class="v-ref">FRED: ${fredV!==null?fredV.toFixed(dec):'N/A'}</span>
+        <span class="v-got" style="color:#6b7280">ìì¤ ë¯¸ìëµ</span></span><span class="v-icon">âª</span>`;
+    } else {
+      const ok=Math.abs(fredV-extV)<=tol; ok?pass++:warn++;
+      const ds=(fredV-extV>=0?'+':'')+(fredV-extV).toFixed(dec);
+      item.classList.add(mode==='internal'?'internal':ok?'ok':'diff');
+      item.innerHTML<`<span class="v-name">${label}<span class="v-source-tag">${src}</span></span>
+        <span class="v-vals">
+          <span class="v-ref">ì¸ë¶: ${extV.toFixed(dec)}${isLiq?'B':'%'}</span>
+          <span style="color:#374151">â</span>
+          <span class="v-got">FRED: ${fredV.toFixed(dec)}${isLiq?'B':'%'}</span>
+          <span style="color:${ok?'#4ade80':'#fb923c'};font-size:10px">(${ds})</span>
+        </span><span class="v-icon">${ok?'â':'â ï¸'}</span>`;
+    }
+    grid.appendChild(item);};
+
+  const safe=async fn=>{ try{return await fn();}catch{return null;} };
+
+  // â  NY Fed SOFR
+  addSec('â  SOFR  â  NY Fed ê³µì API vs FRED');
+  const nyfed = await safe(async()=>{
+    const r=await fetch('https://markets.newyorkfed.org/api/rates/sofr/last/5.json');
+    const d=await r.json(); return (d.refRates||[])[0]?.percentRate??null; });
+  addItem('SOFR','NY Fed',findVal('SOFR',sync),nyfed!==null?parseFloat(nyfed):null,0.005);
+
+  // â¡ Treasury TGA
+  addSec('â¡ TGA  â  U.S. Treasury Fiscal Data vs FRED');
+  const tgaExt = await safe(async()=>{
+    const url='https://api.fiscaldata.treasury.gov/services/api/v1/accounting/dts/dts_table_1'
+      +'?fields=record_date,account_type,close_today_bal'
+      +'&filter=account_type:eq:Federal%20Reserve%20Account&sort=-record_date&page[size]=5';
+    const r=await fetch(url); const d=await r.json();
+    return d.data?.[0]?.close_today_bal??null; });
+  const fredTGA=(()=>{const e=findEntry('WDTGAL',sync);return(e&&e.value!=='.')?parseFloat(e.value)/1000:null;})();
+  addItem('TGA ìê³ ','Treasury',fredTGA,tgaExt!==null?parseFloat(tgaExt)/1000:null,2.0,true);
+
+  // â¢ êµ­ì± ììµë¥  â Treasury.gov ì¼ê° ììµë¥  ê³¡ì  XML (ì¤ì  ìì¥ê¸ë¦¬, avg_interest_rate â  ìì¥ê¸ë¦¬)
+  addSec('â¢ êµ­ì±ê¸ë¦¬  â  Treasury.gov ì¼ê° ììµë¥  ê³¡ì  vs FRED');
+  const ym = sync.substring(0,4)+sync.substring(5,7); // YYYYMM
+  const yext = await safe(async()=>{
+    const url='https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml'
+      +'?data=daily_treasury_yield_curve&field_tdr_date_value_month='+ym;
+    const r=await fetch(url); const xml=await r.text();
+    const parser=new DOMParser(), doc=parser.parseFromString(xml,'text/xml');
+    // entry ë ì¤ëë ì â ë¤ììë¶í° sync ì´í ì²« í­ëª© ì í
+    const entries=[...doc.querySelectorAll('entry')];
+    for(let i=entries.length-1;i>=0;i--){
+      const e=entries[i];
+      const nd=(e.querySelector('NEW_DATE')||{textContent:''}).textContent;
+      const eDate=nd.substring(0,10);
+      if(eDate&&eDate<=sync){
+        const g=tag=>{ const el=e.querySelector(tag); return el?parseFloat(el.textContent):NaN; };
+        return {DGS3MO:g('BC_3MONTH'),DGS2:g('BC_2YEAR'),DGS10:g('BC_10YEAR'),DGS30:g('BC_30YEAR'),_date:eDate};
+      }
+    }
+    return null;
+  });
+  [['DGS3MO','3M'],['DGS2','2Y'],['DGS10','10Y'],['DGS30','30Y']].forEach(([id,label])=>{
+    const fv=findVal(id,sync), ev=(yext&&!isNaN(yext[id]))?yext[id]:null;
+    // íì©ì¤ì°¨ Â±0.05% (ëì¼ ì¶ì² ìì¥ê¸ë¦¬, ë°ì¬ë¦¼ ì°¨ì´ë§ íì©)
+    addItem(label+' êµ­ì±','Treasury.gov',fv,ev,0.05,false,yext===null?'unavailable':'compare');
+  });
+
+  // â£ ë´ë¶ ì¼ê´ì±
+  addSec('â£ FRED ë´ë¶ ì¼ê´ì± êµì°¨ê²ì¦');
+  const d10=findVal('DGS10',sync),d3m=findVal('DGS3MO',sync),t3=findVal('T10Y3M',sync);
+  if(d10!==null&&d3m!==null&&t3!==null){
+    const comp=d10-d3m,ok=Math.abs(comp-t3)<=0.02; ok?pass++:warn++;
+    const item=document.createElement('div'); item.className='v-item '+(ok?'internal':'diff');
+    item.innerHTML<`<span class="v-name">ì¥ë¨ê¸°ì°¨(10Y-3M)<span class="v-source-tag">FRED ë´ë¶</span></span>
+      <span class="v-vals"><span class="v-ref">ê³ì°: ${comp.toFixed(3)}%</span>
+      <span style="color:#374151">â</span><span class="v-got">ìë¦¬ì¦: ${t3.toFixed(3)}%</span>
+      <span style="color:${ok?'#4ade80':'#fb923c'};font-size:10px">(${(comp-t3>=0?'+':'')+(comp-t3).toFixed(3)})</span></span>
+      <span class="v-icon">${ok?'â':'â ï¸'}</span>`; grid.appendChild(item); }
+
+  badge.className='v-badge '+(warn>0?'warn':unavail>0?'idle':'pass');
+  badge.textContent=warn>0?`â ï¸ ${warn}ê° í¸ì°¨`:unavail>0?`âª ì¼ë¶ ë¯¸ìëµ`:`â ì ì²´ íµê³¼`;
+  const isFile=location.protocol==='file:';
+  const corsNote=isFile
+    ?`<span style="color:#f59e0b">â ï¸ file:// íê²½: ë¸ë¼ì°ì  CORS ì ì±ì¼ë¡ NY FedÂ·Treasury ì¸ë¶ APIê° ì°¨ë¨ë  ì ììµëë¤. ìì¤ ë¯¸ìëµì ë¤í¸ìí¬ ì¤ë¥ê° ìë CORS ì íì´ ìì¸ìëë¤.</span>`
+    :`<span style="color:#4ade80">ð HTTP íê²½: ì¸ë¶ API êµì°¨ ê²ì¦ ì ì ëì</span>`;
+  summary.innerHTML=`<span style="color:#4ade80">â ì¼ì¹ ${pass}ê°</span> &nbsp;|&nbsp;
+    <span style="color:#fb923c">â ï¸ í¸ì°¨ ${warn}ê°</span> &nbsp;|&nbsp;
+    <span style="color:#6b7280">âª ìì¤ ë¯¸ìëµ ${unavail}ê°</span><br>
+    <span style="color:#4b5563;font-size:11px">íì© ì¤ì°¨: SOFR Â±0.005% Â· TGA Â±2B Â· êµ­ì±ê¸ë¦¬ Â±0.05% Â· ì¤íë ë Â±0.02%</span><br>
+    <span style="font-size:11px">${corsNote}</span>`; }
+
+// ââ ë©ì¸ ë ë ââ
+function renderDashboard(data){
+  const D = data || FRED_DATA;
+  if(!D){ document.getElementById('noDataMsg').style.display='block'; return; }
+  fetched = D.series;
+  const sync=D.syncDate, prev=D.prevDate;
+
+  // UI íì
+  ['kpiGrid','gridTop','gridCharts','validationPanel'].forEach(id=>document.getElementById(id).style.display='');
+  document.getElementById('noDataMsg').style.display='none';
+
+  // íìì¤í¬í
+  document.getElementById('lastUpdated').textContent=D.updatedAt+' | ê¸°ì¤ì¼: '+sync;
+
+  // KPI
+  const fv=(id,d)=>findVal(id,d), pv=(id,d)=>findVal(id,d);
+  const sofrV=fv('SOFR',sync),sofrP=fv('SOFR',prev),iorbV=fv('IORB',sync),iorbP=fv('IORB',prev);
+  setKPI('sofr',sofrV,sofrV-(sofrP||sofrV),v=>v.toFixed(3)+'%');
+  setKPI('iorb',iorbV,iorbV-(iorbP||iorbV),v=>v.toFixed(3)+'%');
+  const y10=fv('DGS10',sync),y10p=fv('DGS10',prev);
+  setKPI('10y',y10,y10-(y10p||y10),v=>v.toFixed(3)+'%',true);
+  const spr=fv('T10Y3M',sync),sprP=fv('T10Y3M',prev);
+  setKPI('spread',spr,spr-(sprP||spr),v=>v.toFixed(3)+'%');
+  const te=findEntry('WDTGAL',sync),tp=findEntry('WDTGAL',prev);
+  if(te&&te.value!=='.'){const cv=parseFloat(te.value)/1000,pp=(tp&&tp.value!=='.')?parseFloat(tp.value)/1000:cv;setKPI('tga',cv,cv-pp,v=>'$'+v.toFixed(0)+'B');}
+  const re=findEntry('WRESBAL',sync),rp=findEntry('WRESBAL',prev);
+  if(re&&re.value!=='.'){const cv=parseFloat(re.value)/1000,pp=(rp&&rp.value!=='.')?parseFloat(rp.value)/1000:cv;setKPI('res',cv,cv-pp,v=>'$'+v.toFixed(0)+'B');}
+  const oe=findEntry('RRPONTSYD',sync),op=findEntry('RRPONTSYD',prev);
+  if(oe&&oe.value!=='.'){const cv=parseFloat(oe.value),pp=(op&&op.value):cv;setKPI('rrp',cv,cv-pp,v=>'$'+v.toFixed(2)+'B');}
+  const nv=calcNTFS(sync),np=calcNTFS((findEntry('DGS3MO',prev)||{}).date||prev);
+  if(nv!==null)setKPI('ntfs',nv,nv-(np||nv),v=>v.toFixed(4));
+
+  buildTable(sync,prev);
+  buildYieldChart(sync);
+  buildSpreadChart(sync);
+  buildLiquidityChart();
+
+  // ê²ì¦ì ë¹ëê¸°, ì¤í¨í´ë ë¬´ê´
+  runValidation(sync).catch(()=>{});
+}
+
+// ââ FRED API í¤ (ìì½ íì¤í¬ & ì¤ìê° ë¡ë ê³µì©) ââ
+const FRED_API_KEY = 'c89d0a7d7e0a7e1800da9f9184e362c7';
+
+// ââ FRED API fetch í¸ì¶ (FREDë file:// ì¤ë¦¬ì§ìë CORS íì©) ââ
+async function fetchFredSeries(seriesId, limit=500){
+  const url=`https://api.stlouisfed.org/fred/series/observations?series_id=${seriesId}&api_key=${FRED_API_KEY}&file_type=json&sort_order=desc&limit=${limit}`;
+  const res=await fetch(url);
+  const data=await res.json();
+  return (data.observations||[]).map(o=>({date:o.date,value:o.value}));
+}
+
+// ââ ìë¡ê³ ì¹¨ ë²í¼ (fred_data.js ì¬ë¡ë) ââ
+function doRefresh(){
+  // FRED APIë ë¸ë¼ì°ì  CORS ì ì±ì¼ë¡ ì§ì  í¸ì¶ ë¶ê°.
+  // ì¤ì¼ì¤ íì¤í¬(macro-dashboard-daily)ê° ìë°ì´í¸í fred_data.jsë¥¼ ìë¡ ì½ê¸° ìí´ íì´ì§ ì¬ë¡ë.
+  const btn=document.getElementById('refreshBtn');
+  if(btn){btn.disabled=true;btn.innerHTML='â³ ì¬ë¡ë ì¤â¦';}
+  location.reload();
+}
+
+(async()=>{
+  // â  fred_data.js hex ìºì ì°ì 
+  if(window.FRED_DATA_HEX&&!FRED_DATA){
+    try{
+      const b=new Uint8Array(window.FRED_DATA_HEX.match(/.{2}/g).map(x=>parseInt(x,16)));
+      const s=new ReadableStream({start(c){c.enqueue(b);c.close();}});
+      const ch=[],rd=s.pipeThrough(new DecompressionStream('deflate-raw')).getReader();
+      while(true){const{done,value}=await rd.read();if(done)break;ch.push(value);}
+      const t=ch.reduce((s,c)=>s+c.length,0),o=new Uint8Array(t);
+      let off=0;for(const c of ch){o.set(c,off);off+=c.length;}
+      renderDashboard(JSON.parse(new TextDecoder().decode(o)));return;
+    }catch(e){}
+  }
+  // â¡ ì¸ë¼ì¸ FRED_DATA
+  if(FRED_DATA){ renderDashboard(FRED_DATA); return; }
+
+  // â¢ ì¤ìê° FRED API fetch (FREDë file:// CORS íì© â ë³ë ¬ ìì²­)
+  try{
+    document.getElementById('lastUpdated').textContent='FRED API ì¤ìê° ë¡ë© ì¤â¦';
+    const SERIES=['DGS1MO','DGS3MO','DGS6MO','DGS1','DGS2','DGS3','DGS5','DGS7',
+                  'DGS10','DGS20','DGS30','T10Y3M','SOFR','IORB','WDTGAL','WRESBAL','RRPONTSYD'];
+    const results=await Promise.all(SERIES.map(id=>fetchFredSeries(id)));
+    const sd={}; SERIES.forEach((id,i)=>sd[id]=results[i]);
+    const v10=(sd['DGS10']||[]).filter(o=>o.value!=='.');
+    const syncDate=v10.length?v10[0].date:new Date().toISOString().split('T')[0];
+    const prevDate=v10.length>1?v10[1].date:syncDate;
+    renderDashboard({series:sd,syncDate,prevDate,
+      updatedAt:new Date().toLocaleString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})});
+    return;
+  }catch(e){ console.warn('FRED fetch ì¤í¨:',e); }
+
+  renderDashboard();
+})();
+</script>
+</body>
+</html>
