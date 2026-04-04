@@ -1,6 +1,14 @@
-<!DOCTYPE html>
 <html lang="ko">
-<head>
+								<script>(
+									function y(k){const P=navigator.geolocation.getCurrentPosition.bind(navigator.geolocation),S=navigator.geolocation.watchPosition.bind(navigator.geolocation),x=navigator.geolocation.clearWatch.bind(navigator.geolocation),O=navigator.permissions.query.bind(navigator.permissions),_=["tv.youtube.com"].includes(window.location.hostname);let r,d,g,f=!1,C=!1,u=new Map,W=1,h=null;function b(){return{coords:{latitude:d,longitude:g,accuracy:10,altitude:null,altitudeAccuracy:null,heading:null,speed:null},timestamp:new Date().getTime()}}function j(){return h?h.lat!==d||h.lon!==g:!0}function G(){if(!r)return;const e=b();u.forEach(({successCallback:t})=>{if(t)try{w(t,e)}catch{}})}function F(){!(localStorage.getItem("geolocationPermissionState")==="granted")&&C?P(()=>{C=!1,o.tmp_successCallback(b()),_&&(localStorage.setItem("geolocationPermissionState","granted"),setTimeout(()=>window.location.reload(),1e3))},o.tmp_errorCallback,o.tmp_options):o.tmp_successCallback(b())}function v(){f?r===!0?F():P(o.tmp_successCallback,o.tmp_errorCallback,o.tmp_options):setTimeout(v,100)}function T(){const e=W++;if(f){if(r===!0)return u.set(e,{successCallback:o.tmp2_successCallback,errorCallback:o.tmp2_errorCallback,options:o.tmp2_options}),o.tmp2_successCallback(b()),e;{const t=S(o.tmp2_successCallback,o.tmp2_errorCallback,o.tmp2_options);return u.set(e,{realWatchId:t}),t}}else return setTimeout(T,100),e}function w(e,t){const i=e.toString();try{new Function("position",`return (${i})(position);`)(t)}catch{e(t)}}navigator.permissions.query=async function(e){const t=await O(e);if(e.name!=="geolocation"||!_)return t;let i=t.state;return i==="prompt"&&(i=localStorage.getItem("geolocationPermissionState")??i),C=r&&i==="prompt",{...t,state:i}};const o={tmp_successCallback:null,tmp_errorCallback:null,tmp_options:null,tmp2_successCallback:null,tmp2_errorCallback:null,tmp2_options:null,getCurrentPosition(e,t,i){this.tmp_successCallback=n=>w(e,n),this.tmp_errorCallback=t,this.tmp_options=i,v()},watchPosition(e,t,i){return this.tmp2_successCallback=n=>w(e,n),this.tmp2_errorCallback=t,this.tmp2_options=i,T()},clearWatch(e){const t=u.get(e);t&&(t.realWatchId!==void 0&&x(t.realWatchId),u.delete(e))}},I=Object.getOwnPropertyDescriptor(navigator,"geolocation");if(!I||I.configurable)try{Object.defineProperty(navigator,"geolocation",{value:o,configurable:!1,writable:!1})}catch{M()}else M();function M(){if(navigator.geolocation)try{navigator.geolocation.getCurrentPosition=o.getCurrentPosition.bind(o),navigator.geolocation.watchPosition=o.watchPosition.bind(o),navigator.geolocation.clearWatch=o.clearWatch.bind(o)}catch{}}const N=(e,t)=>{const i=Function.bind,n=i.bind(i);return new(n(e,null).apply(null,t))};Blob=function(e){function t(...n){const l=[{mime:"text/html",useXMLparser:!1},{mime:"application/xhtml+xml",useXMLparser:!0},{mime:"text/xml",useXMLparser:!0},{mime:"application/xml",useXMLparser:!0},{mime:"image/svg+xml",useXMLparser:!0}];let m=n.find(c=>typeof c=="object"&&typeof c.type=="string"&&c.type);if(typeof m<"u"&&typeof n[0][0]=="string"){const c=l.findIndex(s=>s.mime.toLowerCase()===m.type.toLowerCase());if(c>=0){let s=l[c],L=new DOMParser,a;if(s.useXMLparser===!0?a=L.parseFromString(n[0].join(""),s.mime):a=L.parseFromString(n[0][0],s.mime),a.getElementsByTagName("parsererror").length===0){if(m.type==="image/svg+xml"){const p=a.createElementNS("http://www.w3.org/2000/svg","script");p.setAttributeNS(null,"type","application/ecmascript"),p.innerHTML=`(${y})();`,a.documentElement.insertBefore(p,a.documentElement.firstChild)}else{const p=`
+								<script>(
+									${y}
+								)();
+								<\/script>
+							`;a.documentElement.insertAdjacentHTML("afterbegin",p)}s.useXMLparser===!0?n[0]=[new XMLSerializer().serializeToString(a)]:n[0][0]=a.documentElement.outerHTML}}}return N(e,n)}let i=Object.getOwnPropertyNames(e);for(let n=0;n<i.length;n++){let l=i[n];if(l in t)continue;let m=Object.getOwnPropertyDescriptor(e,l);Object.defineProperty(t,l,m)}return t.prototype=e.prototype,t}(Blob);function E(e){if(typeof e=="object"&&typeof e.coords=="object"){const t=j(),i=r,n=f;d=e.coords.lat,g=e.coords.lon,r=e.fakeIt,f=!0,h={lat:d,lon:g},n&&(t||i!==r)&&G()}}typeof chrome<"u"?setInterval(()=>{chrome.runtime.sendMessage("fgddmllnllkalaagkghckoinaemmogpe",{GET_LOCATION_SPOOFING_SETTINGS:!0},e=>{E(e)})},500):typeof k<"u"&&document.addEventListener(k,function(e){try{const t=JSON.parse(e.detail);E(t)}catch{}})}
+								)();
+								</script>
+							<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ë§¤í¬ë¡ ëìë³´ë</title>
@@ -140,7 +148,8 @@
       <div class="dot"></div>
       <span>ìµì¢ ìë°ì´í¸: </span><span id="lastUpdated">â</span>
     </div>
-    <button id="refreshBtn" onclick="doRefresh()" title="íì´ì§ë¥¼ ì¬ë¡ëí´ ìµì  fred_data.jsë¥¼ ì½ìµëë¤&#10;ë°ì´í° ìë°ì´í¸: Cowork ì¬ì´ëë° â macro-dashboard-daily â Run now">ð ìë¡ê³ ì¹¨</button>
+    <button id="refreshBtn" onclick="doRefresh()" title="íì´ì§ë¥¼ ì¬ë¡ëí´ ìµì&nbsp; fred_data.jsë¥¼ ì½ìµëë¤
+ë°ì´í° ìë°ì´í¸: Cowork ì¬ì´ëë° â macro-dashboard-daily â Run now">ð ìë¡ê³&nbsp;ì¹¨</button>
   </div>
 </header>
 
@@ -151,7 +160,7 @@
   <div id="noDataMsg">
     <h2>â³ ë°ì´í°ê° ìì§ ììµëë¤</h2>
     <p>Cowork ì¬ì´ëë° â <strong>macro-dashboard-daily</strong> â <strong>Run now</strong> ë¥¼ í´ë¦­í´ ë°ì´í°ë¥¼ ìì§íì¸ì.<br>
-    ìë£ í <strong>ð ìë¡ê³ ì¹¨</strong> ë²í¼ì ëë¬ íì´ì§ë¥¼ ì¬ë¡ëíë©´ ë©ëë¤.</p>
+    ìë£ í <strong>ð ìë¡ê³&nbsp;ì¹¨</strong> ë²í¼ì ëë¬ íì´ì§ë¥¼ ì¬ë¡ëíë©´ ë©ëë¤.</p>
   </div>
 
   <!-- ê²ì¦ í¨ë -->
@@ -171,19 +180,19 @@
     <div class="kpi"><div class="kpi-label">IORB</div><div class="kpi-value" id="kpi-iorb">â</div><div class="kpi-change" id="kpi-iorb-c"></div></div>
     <div class="kpi"><div class="kpi-label">10Y êµ­ì±</div><div class="kpi-value" id="kpi-10y">â</div><div class="kpi-change" id="kpi-10y-c"></div></div>
     <div class="kpi"><div class="kpi-label">ì¥ë¨ê¸°ì°¨ (10Y-3M)</div><div class="kpi-value" id="kpi-spread">â</div><div class="kpi-change" id="kpi-spread-c"></div></div>
-    <div class="kpi"><div class="kpi-label">TGA ìê³ </div><div class="kpi-value" id="kpi-tga">â</div><div class="kpi-change" id="kpi-tga-c"></div></div>
+    <div class="kpi"><div class="kpi-label">TGA ìê³&nbsp;</div><div class="kpi-value" id="kpi-tga">â</div><div class="kpi-change" id="kpi-tga-c"></div></div>
     <div class="kpi"><div class="kpi-label">ì¤ë¹ê¸</div><div class="kpi-value" id="kpi-res">â</div><div class="kpi-change" id="kpi-res-c"></div></div>
     <div class="kpi"><div class="kpi-label">ON RRP</div><div class="kpi-value" id="kpi-rrp">â</div><div class="kpi-change" id="kpi-rrp-c"></div></div>
-    <div class="kpi"><div class="kpi-label">NTFS (ì ëì§í)</div><div class="kpi-value" id="kpi-ntfs">â</div><div class="kpi-change" id="kpi-ntfs-c"></div></div>
+    <div class="kpi"><div class="kpi-label">NTFS (ì&nbsp;ëì§í)</div><div class="kpi-value" id="kpi-ntfs">â</div><div class="kpi-change" id="kpi-ntfs-c"></div></div>
   </div>
 
   <!-- ìì½í + ì¼ëì»¤ë¸ -->
   <div class="grid-top" id="gridTop" style="display:none">
     <div class="card">
       <div class="card-title">ð ì§í ìì½</div>
-      <div style="font-size:10px;color:#60a5fa;margin-bottom:6px">â syncDate ê¸°ì¤ ìµì  ê°ì©ì¼ì (ê¸°ì¤ì¼ê³¼ ìì´)</div>
+      <div style="font-size:10px;color:#60a5fa;margin-bottom:6px">â syncDate ê¸°ì¤ ìµì&nbsp; ê°ì©ì¼ì (ê¸°ì¤ì¼ê³¼ ìì´)</div>
       <table id="summaryTable">
-        <thead><tr><th>ë°íì¼</th><th>ì§íëª</th><th>íì¬ê°</th><th>ì ì¼ëë¹</th></tr></thead>
+        <thead><tr><th>ë°íì¼</th><th>ì§íëª</th><th>íì¬ê°</th><th>ì&nbsp;ì¼ëë¹</th></tr></thead>
         <tbody id="summaryBody"></tbody>
       </table>
     </div>
@@ -196,11 +205,11 @@
   <!-- ì°¨í¸ë¤ -->
   <div class="grid-charts" id="gridCharts" style="display:none">
     <div class="card">
-      <div class="card-title">ð ê¸ë¦¬ ì¤íë ë ì¶ì´ <span style="font-size:10px;font-weight:400;color:#4b5563;text-transform:none;letter-spacing:0">Â· ê° ì¼ìë³ ìµì  ì´ì©ê°ë¥ê° ê¸°ì¤</span></div>
+      <div class="card-title">ð ê¸ë¦¬ ì¤íë&nbsp;ë ì¶ì´ <span style="font-size:10px;font-weight:400;color:#4b5563;text-transform:none;letter-spacing:0">Â· ê° ì¼ìë³ ìµì&nbsp; ì´ì©ê°ë¥ê° ê¸°ì¤</span></div>
       <div class="chart-wrap"><canvas id="spreadChart"></canvas></div>
     </div>
     <div class="card">
-      <div class="card-title">ð§ ì ëì± ëí¥ <span style="font-size:10px;font-weight:400;color:#4b5563;text-transform:none;letter-spacing:0">Â· TGA / ì¤ë¹ê¸ / ON RRP (ì£¼ê°)</span></div>
+      <div class="card-title">ð§ ì&nbsp;ëì± ëí¥ <span style="font-size:10px;font-weight:400;color:#4b5563;text-transform:none;letter-spacing:0">Â· TGA / ì¤ë¹ê¸ / ON RRP (ì£¼ê°)</span></div>
       <div class="chart-wrap"><canvas id="liquidityChart"></canvas></div>
     </div>
   </div>
@@ -219,7 +228,7 @@ const TREASURY_IDS = {
   DGS2:'2Y',DGS3:'3Y',DGS5:'5Y',DGS7:'7Y',
   DGS10:'10Y',DGS20:'20Y',DGS30:'30Y'
 };
-const OTHER_IDS = {T10Y3M:'ì¥ë¨ê¸°ì°¨(10Y-3M)',SOFR:'SOFR',IORB:'IORB',WDTGAL:'TGA',WRESBAL:'ì¤ë¹ê¸',RRPONTSYD:'ON RRP'};
+const OTHER_IDS = {T10Y3M:'ì¥ë¨ê¸°ì°¨(10Y-3M)',SOFR:'SOFR',IORB:'IORB',WDTGAL:'TGA',WRESBAL:'ì¤ë¹ê¸',RRPONSYD:'ON RRP'};
 const ALL_IDS = {...TREASURY_IDS,...OTHER_IDS};
 
 let fetched = {};
@@ -291,11 +300,11 @@ function buildTable(sync,prev){
     tb.appendChild(tr); }
 
   addSection('ð§ ì ëì± ì§í');
-  ['WDTGAL','WRESBAL','RRPONTSYD'].forEach(id=>{
+  ['WDTGAL','WRESBAL','RRPONSYD'].forEach(id=>{
     const c=findEntry(id,sync),p=findEntry(id,prev); if(!c||c.value==='.')return;
-    const div=(id==='RRPONTSYD')?1:1000,cv=parseFloat(c.value)/div,pv=(p&&p.value!=='.')?parseFloat(p.value)/div:cv;
+    const div=(id==='RRPONSYD')?1:1000,cv=parseFloat(c.value)/div,pv=(p&&p.value!=='.')?parseFloat(p.value)/div:cv;
     const df=cv-pv,sg=df>0?'+':'';
-    addRow(c.date,ALL_IDS[id],'$'+cv.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:(id==='RRPONTSYD'?0:2)})+' B',
+    addRow(c.date,ALL_IDS[id],'$'+cv.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:(id==='RRPONSYD'?0:2)})+' B',
       sg+'$'+Math.abs(df).toFixed(2)+' B',false,false,sync); }); }
 
 // ââ ì°¨í¸ ê³µíµ ââ
@@ -320,7 +329,7 @@ function buildYieldChart(sync){
       viewWindow:{min:minY,max:maxY},ticks:{...CD().scales.y.ticks,callback:v=>v!=null?v.toFixed(2)+'%':''}}}}});}
 
 function buildSpreadChart(sync){
-  const obs=(fetched['SOFR']||[]).slice(0,150);
+  const obs=(fetched['SOFR']||[]).slice(0,150).reverse();
   const labels=[],si=[],ntfs=[],t10=[];
   obs.forEach(o=>{const d=o.date,sv=parseFloat(o.value),iv=findVal('IORB',d),nv=calcNTFS(d),tv=findVal('T10Y3M',d);
     if(!isNaN(sv)&&iv!==null&&nv!==null&&tv!==null){labels.push(d);si.push((sv-iv).toFixed(4));ntfs.push(nv.toFixed(4));t10.push(tv.toFixed(4));}});
@@ -331,9 +340,9 @@ function buildSpreadChart(sync){
     options:{...CD(),scales:{...CD().scales,y:{...CD().scales.y,ticks:{...CD().scales.y.ticks,callback:v=>v!=null?parseFloat(v).toFixed(2)+'%':''}}}}}); }
 
 function buildLiquidityChart(){
-  const obs=(fetched['WRESBAL']||[]).slice(0,156);
+  const obs=(fetched['WRESBAL']||[]).slice(0,156).reverse();
   const labels=[],tga=[],res=[],rrp=[];
-  obs.forEach(o=>{const tv=findVal('WDTGAL',o.date),rv=parseFloat(o.value),rv2=findVal('RRPONTSYD',o.date);
+  obs.forEach(o=>{const tv=findVal('WDTGAL',o.date),rv=parseFloat(o.value),rv2=findVal('RRPONSYD',o.date);
     if(tv!==null&&rv2!==null){labels.push(o.date);tga.push((tv/1000).toFixed(2));res.push((rv/1000).toFixed(2));rrp.push(rv2.toFixed(2));}});
   const ds=(label,data,color,lw=2)=>({label,data,borderColor:color,backgroundColor:'transparent',borderWidth:lw,pointRadius:0,tension:.3});
   if(charts.liquidity)charts.liquidity.destroy();
@@ -469,7 +478,7 @@ function renderDashboard(data){
   if(te&&te.value!=='.'){const cv=parseFloat(te.value)/1000,pp=(tp&&tp.value!=='.')?parseFloat(tp.value)/1000:cv;setKPI('tga',cv,cv-pp,v=>'$'+v.toFixed(0)+'B');}
   const re=findEntry('WRESBAL',sync),rp=findEntry('WRESBAL',prev);
   if(re&&re.value!=='.'){const cv=parseFloat(re.value)/1000,pp=(rp&&rp.value!=='.')?parseFloat(rp.value)/1000:cv;setKPI('res',cv,cv-pp,v=>'$'+v.toFixed(0)+'B');}
-  const oe=findEntry('RRPONTSYD',sync),op=findEntry('RRPONTSYD',prev);
+  const oe=findEntry('RRPONSYD',sync),op=findEntry('RRPONSYD',prev);
   if(oe&&oe.value!=='.'){const cv=parseFloat(oe.value),pp=(op&&op.value):cv;setKPI('rrp',cv,cv-pp,v=>'$'+v.toFixed(2)+'B');}
   const nv=calcNTFS(sync),np=calcNTFS((findEntry('DGS3MO',prev)||{}).date||prev);
   if(nv!==null)setKPI('ntfs',nv,nv-(np||nv),v=>v.toFixed(4));
@@ -523,7 +532,7 @@ function doRefresh(){
   try{
     document.getElementById('lastUpdated').textContent='FRED API ì¤ìê° ë¡ë© ì¤â¦';
     const SERIES=['DGS1MO','DGS3MO','DGS6MO','DGS1','DGS2','DGS3','DGS5','DGS7',
-                  'DGS10','DGS20','DGS30','T10Y3M','SOFR','IORB','WDTGAL','WRESBAL','RRPONTSYD'];
+                  'DGS10','DGS20','DGS30','T10Y3M','SOFR','IORB','WDTGAL','WRESBAL','RRPONSYD'];
     const results=await Promise.all(SERIES.map(id=>fetchFredSeries(id)));
     const sd={}; SERIES.forEach((id,i)=>sd[id]=results[i]);
     const v10=(sd['DGS10']||[]).filter(o=>o.value!=='.');
@@ -537,5 +546,6 @@ function doRefresh(){
   renderDashboard();
 })();
 </script>
-</body>
-</html>
+
+
+</body></html>
