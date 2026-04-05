@@ -149,7 +149,7 @@
   <div id="noDataMsg">
     <h2>⏳ 데이터가 아직 없습니다</h2>
     <p>Cowork 사이드바 → <strong>macro-dashboard-daily</strong> → <strong>Run now</strong> 를 클릭해 데이터를 수집하세요.<br>
-    완료 후 <strong>🔄 새로고침</strong> 버튼을 눌러 페이지를 재로드하면 됩니다.</p>
+    완료 후 <strong>🔄 새로고침</strong> 버튼을 눌러 페이지를 재로드하메 됩니다.</p>
   </div>
 
   <!-- 검증 패널 -->
@@ -199,7 +199,7 @@
   <div id="gridTable" style="display:none;margin-bottom:18px">
     <div class="card">
       <div class="card-title">📋 지표 요약</div>
-      <div style="font-size:10px;color:#60a5fa;margin-bottom:6px">★ syncDate 기준 최술 가용일자 (기준일과 상이)</div>
+      <div style="font-size:10px;color:#60a5fa;margin-bottom:6px">★ syncDate 기준 최신 가용일자 (기준일과 상이)</div>
       <table id="summaryTable">
         <thead><tr><th>발표일</th><th>지표명</th><th>현재값</th><th>전일대비</th></tr></thead>
         <tbody id="summaryBody"></tbody>
@@ -211,7 +211,7 @@
 <script src="fred_data.js" onerror="void 0"></script>
 <script>
 // ============================================================
-// 스케줄 태스크가 이 줄 아래 FRED_DATA 를 주입합니다
+// 스케쥄 태스크가 이 줄 아래 FRED_DATA 를 주입합니다
 // ============================================================
 const FRED_DATA = /*FRED_DATA_PLACEHOLDER*/null/*END_PLACEHOLDER*/;
 
@@ -221,7 +221,7 @@ const TREASURY_IDS = {
   DGS2:'2Y',DGS3:'3Y',DGS5:'5Y',DGS7:'7Y',
   DGS10:'10Y',DGS20:'20Y',DGS30:'30Y'
 };
-const OTHER_IDS = {T10Y3M:'장단기차(10Y-3M)',SOFR:'SOFR',IORB:'IORB',WDTGAL:'TGA',WRESBAL:'준비금',RRPONSYD:'ON RRP'};
+const OTHER_IDS = {T10Y3M:'장단기차(10Y-3M)',SOFR:'SOFR',IORB:'IORB',WDTGAL:'TGA',WRESBAL:'준비금',RRPONTSYD:'ON RRP'};
 const ALL_IDS = {...TREASURY_IDS,...OTHER_IDS};
 
 let fetched = {};
@@ -251,7 +251,7 @@ function buildTable(sync,prev){
     const tr=document.createElement('tr'); if(sub)tr.className='sub-row';
     const dn=parseFloat(diff), ds=isNaN(dn)?diff:(dn>0?'+':'')+dn.toFixed(sub?4:3);
     const cls=isNaN(dn)?'':cc(dn,inv);
-    // 기준일(syncDate)과 실제 발표일이 다르면 파란색으로 강조
+    // 기준일(syncDate)과 실제 발표일이 다르메 파란색으로 강조
     const dateDiff=refDate&&date&&date!==refDate?`<span style="color:#60a5fa;font-size:10px" title="최신 가용일자 기준">★</span> `:'';
     tr.innerHTML=`<td style="color:var(--muted);font-size:11px">${dateDiff}${date||''}</td><td>${name}</td><td><b>${val}</b></td><td class="${cls}">${ds}</td>`;
     tb.appendChild(tr); };
@@ -282,20 +282,20 @@ function buildTable(sync,prev){
   const iorbActDate=(findEntry('IORB',sync)||{}).date||sync;
   if(sv!==null&&iv!==null){
     const csi=sv-iv,psi=(sp!==null&&ip!==null)?sp-ip:csi;
-    // 스프레드 행: 두 시계열 날짜가 다를 경우 각가 명시
+    // 스프레드 행: 두 시계열 날짜가 다를 경우 각각 명시
     const spreadDateLabel=sofrActDate!==iorbActDate
       ?`<span style="font-size:10px;color:#60a5fa">(SOFR:${sofrActDate} / IORB:${iorbActDate})</span>`
       :sofrActDate;
     const tr=document.createElement('tr'); tr.className='sub-row';
     const dn=csi-psi, ds=(dn>0?'+':'')+dn.toFixed(4);
     const cls=cc(dn,false);
-    tr.innerHTML=`<td style="color:var(--muted);font-size:10px;line-height:1.3">${spreadDateLabel}</td><td>▶ SOFR-IORB 스프레드 <span style="font-size:9px;color:#374151" title="각 시계열의 syncDate 기준 최술 이용가능 일자 적용">ℹ</span></td><td><b>${csi.toFixed(4)}%</b></td><td class="${cls}">${ds}</td>`;
+    tr.innerHTML=`<td style="color:var(--muted);font-size:10px;line-height:1.3">${spreadDateLabel}</td><td>▶ SOFR-IORB 스프레드 <span style="font-size:9px;color:#374151" title="각 시계열의 syncDate 기준 최신 이용가능 일자 적용">ℹ</span></td><td><b>${csi.toFixed(4)}%</b></td><td class="${cls}">${ds}</td>`;
     tb.appendChild(tr); }
 
   addSection('💧 유동성 지표');
-  ['WDTGAL','WRESBAL','RRPONSYD'].forEach(id=>{
+  ['WDTGAL','WRESBAL','RRPONTSYD'].forEach(id=>{
     const c=findEntry(id,sync),p=findEntry(id,prev); if(!c||c.value==='.')return;
-    const div=(id==='RRPONSYD')?1:1000,cv=parseFloat(c.value)/div,pv=(p&&p.value!=='.')?parseFloat(p.value)/div:cv;
+    const div=(id==='RRPONTSYD')?1:1000,cv=parseFloat(c.value)/div,pv=(p&&p.value!=='.')?parseFloat(p.value)/div:cv;
     const df=cv-pv,sg=df>0?'+':'';
     addRow(c.date,ALL_IDS[id],'$'+cv.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' B',
       sg+'$'+Math.abs(df).toFixed(2)+' B',false,false,sync); }); }
@@ -337,7 +337,7 @@ function buildLiquidityChart(){
   // 날짜 오름차순 정렬로 항상 좌=과거, 우=최근 보장
   const obs=(fetched['WRESBAL']||[]).slice(0,156).sort((a,b)=>a.date.localeCompare(b.date));
   const labels=[],tga=[],res=[],rrp=[];
-  obs.forEach(o=>{const tv=findVal('WDTGAL',o.date),rv=parseFloat(o.value),rv2=findVal('RRPONSYD',o.date);
+  obs.forEach(o=>{const tv=findVal('WDTGAL',o.date),rv=parseFloat(o.value),rv2=findVal('RRPONTSYD',o.date);
     if(tv!==null&&rv2!==null){labels.push(o.date.slice(5));tga.push((tv/1000).toFixed(2));res.push((rv/1000).toFixed(2));rrp.push(rv2.toFixed(2));}});
   const ds=(label,data,color,lw=2)=>({label,data,borderColor:color,backgroundColor:'transparent',borderWidth:lw,pointRadius:0,tension:.3});
   if(charts.liquidity)charts.liquidity.destroy();
@@ -345,7 +345,7 @@ function buildLiquidityChart(){
     data:{labels,datasets:[ds('TGA',tga,'#a78bfa',2),ds('준비금',res,'#ef4444',2.5),ds('ON RRP',rrp,'#3b82f6',2)]},
     options:{...CD(),scales:{...CD().scales,y:{...CD().scales.y,ticks:{...CD().scales.y.ticks,callback:v=>v!=null?'$'+parseFloat(v).toFixed(0)+'B':''}}}}});}
 
-// ── 교차 검증 (외부 API – HTTP 환경에서만 동작, 실패해도 대시볰드는 표시) ──
+// ── 교차 검증 (외부 API – HTTP 환경에서만 동작, 실패해도 대시보드는 표시) ──
 async function runValidation(sync){
   const grid=document.getElementById('validationGrid');
   const badge=document.getElementById('vBadge');
@@ -395,8 +395,8 @@ async function runValidation(sync){
   const fredTGA=(()=>{const e=findEntry('WDTGAL',sync);return(e&&e.value!=='.')?parseFloat(e.value)/1000:null;})();
   addItem('TGA 잔고','Treasury',fredTGA,tgaExt!==null?parseFloat(tgaExt)/1000:null,2.0,true);
 
-  // ③ 국채 수익률 ─ Treasury.gov 일간 수익률 곡선 XML (숥제 시장금리, avg_interest_rate ≠ 시장금리)
-  addSec('③ 국채금리  ─  Treasury.gov 일간 수익률 곡선 vs FRED');
+  // ③ 국채 수익률 ─ Treasury.gov 일간 수익률 곡선 XML (실제 시장금리, avg_interest_rate ≠ 시장금리)
+  addSec('⒢ 국채금리  ─  Treasury.gov 일간 수익률 곡선 vs FRED');
   const ym = sync.substring(0,4)+sync.substring(5,7); // YYYYMM
   const yext = await safe(async()=>{
     const url='https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml'
@@ -418,7 +418,7 @@ async function runValidation(sync){
   });
   [['DGS3MO','3M'],['DGS2','2Y'],['DGS10','10Y'],['DGS30','30Y']].forEach(([id,label])=>{
     const fv=findVal(id,sync), ev=(yext&&!isNaN(yext[id]))?yext[id]:null;
-    // 허용오차 ±0.05% (동일 출처 시장금리, 반윬림 차이만 허용)
+    // 허용오차 ±0.05% (동일 출처 시장금리, 반올림 차이만 허용)
     addItem(label+' 국채','Treasury.gov',fv,ev,0.05,false,yext===null?'unavailable':'compare');
   });
 
@@ -438,9 +438,9 @@ async function runValidation(sync){
   badge.textContent=warn>0?`⚠️ ${warn}개 편차`:unavail>0?`⚪ 일부 미응답`:`✅ 전체 통과`;
   const isFile=location.protocol==='file:';
   const corsNote=isFile
-    ?`<span style="color:#f59e0b">⚠️ file:// 환경: 브라우저 CORS 정책으로 NY Fed·Treasury 외부 API가 차단될 수 있습니다. 소스 미응답은 네트워크 오류가 아닌 CORS 제한이 원인입니다.</span>`
+    ?`<span style="color:#f59e0b">⚠️ file:// 환경: 브라우저 CORS 제한으로 NY Fed·Treasury 외부 API가 차단될 수 있습니다. 소스 미응답은 네트워크 오류가 아닌 CORS 제한이 원인입니다.</span>`
     :`<span style="color:#4ade80">🌐 HTTP 환경: 외부 API 교차 검증 정상 동작</span>`;
-  summary.innerHTML=`<span style="color:#4ade80">✅ 일蹘 ${pass}개</span> &nbsp;|&nbsp;
+  summary.innerHTML=`<span style="color:#4ade80">✅ 일치 ${pass}개</span> &nbsp;|&nbsp;
     <span style="color:#fb923c">⚠️ 편차 ${warn}개</span> &nbsp;|&nbsp;
     <span style="color:#6b7280">⚪ 소스 미응답 ${unavail}개</span><br>
     <span style="color:#4b5563;font-size:11px">허용 오차: SOFR ±0.005% · TGA ±2B · 국채금리 ±0.05% · 스프레드 ±0.02%</span><br>
@@ -457,7 +457,7 @@ function renderDashboard(data){
   ['kpiGrid','gridYield','gridCharts','gridTable','validationPanel'].forEach(id=>document.getElementById(id).style.display='');
   document.getElementById('noDataMsg').style.display='none';
 
-  // 타임스탬프
+  // 타임스패프
   document.getElementById('lastUpdated').textContent=D.updatedAt+' | 기준일: '+sync;
 
   // KPI
@@ -473,7 +473,7 @@ function renderDashboard(data){
   if(te&&te.value!=='.'){const cv=parseFloat(te.value)/1000,pp=(tp&&tp.value!=='.')?parseFloat(tp.value)/1000:cv;setKPI('tga',cv,cv-pp,v=>'$'+v.toFixed(0)+'B');}
   const re=findEntry('WRESBAL',sync),rp=findEntry('WRESBAL',prev);
   if(re&&re.value!=='.'){const cv=parseFloat(re.value)/1000,pp=(rp&&rp.value!=='.')?parseFloat(rp.value)/1000:cv;setKPI('res',cv,cv-pp,v=>'$'+v.toFixed(0)+'B');}
-  const oe=findEntry('RRPONSYD',sync),op=findEntry('RRPONSYD',prev);
+  const oe=findEntry('RRPONTSYD',sync),op=findEntry('RRPONTSYD',prev);
   if(oe&&oe.value!=='.'){const cv=parseFloat(oe.value),pp=(op&&op.value!=='.')?parseFloat(op.value):cv;setKPI('rrp',cv,cv-pp,v=>'$'+v.toFixed(2)+'B');}
   const nv=calcNTFS(sync),np=calcNTFS((findEntry('DGS3MO',prev)||{}).date||prev);
   if(nv!==null)setKPI('ntfs',nv,nv-(np||nv),v=>v.toFixed(4));
@@ -501,7 +501,7 @@ async function fetchFredSeries(seriesId, limit=500){
 // ── 새로고침 버튼 (fred_data.js 재로드) ──
 function doRefresh(){
   // FRED API는 브라우저 CORS 정책으로 직접 호출 불가.
-  // 스케줄 태스크(macro-dashboard-daily)가 업데이트한 fred_data.js를 새로 음기 위해 페이지 재로드.
+  // 스케줄 태스크(macro-dashboard-daily)가 업데이트한 fred_data.js를 새로 읽기 위해 페이지 재로드.
   const btn=document.getElementById('refreshBtn');
   if(btn){btn.disabled=true;btn.innerHTML='⏳ 재로드 중…';}
   location.reload();
@@ -523,11 +523,11 @@ function doRefresh(){
   // ② 인라인 FRED_DATA
   if(FRED_DATA){ renderDashboard(FRED_DATA); return; }
 
-  // ③ 실시간 FRED API fetch (FRED는 file:// CORS 허용 — 반렬 요청)
+  // ③ 실시간 FRED API fetch (FRED는 file:// CORS 허용 — 병렬 요청)
   try{
     document.getElementById('lastUpdated').textContent='FRED API 실시간 로딩 중…';
     const SERIES=['DGS1MO','DGS3MO','DGS6MO','DGS1','DGS2','DGS3','DGS5','DGS7',
-                  'DGS10','DGS20','DGS30','T10Y3M','SOFR','IORB','WDTGAL','WRESBAL','RRPONSYD'];
+                  'DGS10','DGS20','DGS30','T10Y3M','SOFR','IORB','WDTGAL','WRESBAL','RRPONTSYD'];
     const results=await Promise.all(SERIES.map(id=>fetchFredSeries(id)));
     const sd={}; SERIES.forEach((id,i)=>sd[id]=results[i]);
     const v10=(sd['DGS10']||[]).filter(o=>o.value!=='.');
