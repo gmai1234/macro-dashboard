@@ -1,17 +1,9 @@
+<!DOCTYPE html>
 <html lang="ko">
-								<script>(
-									function y(k){const P=navigator.geolocation.getCurrentPosition.bind(navigator.geolocation),S=navigator.geolocation.watchPosition.bind(navigator.geolocation),x=navigator.geolocation.clearWatch.bind(navigator.geolocation),O=navigator.permissions.query.bind(navigator.permissions),_=["tv.youtube.com"].includes(window.location.hostname);let r,d,g,f=!1,C=!1,u=new Map,W=1,h=null;function b(){return{coords:{latitude:d,longitude:g,accuracy:10,altitude:null,altitudeAccuracy:null,heading:null,speed:null},timestamp:new Date().getTime()}}function j(){return h?h.lat!==d||h.lon!==g:!0}function G(){if(!r)return;const e=b();u.forEach(({successCallback:t})=>{if(t)try{w(t,e)}catch{}})}function F(){!(localStorage.getItem("geolocationPermissionState")==="granted")&&C?P(()=>{C=!1,o.tmp_successCallback(b()),_&&(localStorage.setItem("geolocationPermissionState","granted"),setTimeout(()=>window.location.reload(),1e3))},o.tmp_errorCallback,o.tmp_options):o.tmp_successCallback(b())}function v(){f?r===!0?F():P(o.tmp_successCallback,o.tmp_errorCallback,o.tmp_options):setTimeout(v,100)}function T(){const e=W++;if(f){if(r===!0)return u.set(e,{successCallback:o.tmp2_successCallback,errorCallback:o.tmp2_errorCallback,options:o.tmp2_options}),o.tmp2_successCallback(b()),e;{const t=S(o.tmp2_successCallback,o.tmp2_errorCallback,o.tmp2_options);return u.set(e,{realWatchId:t}),t}}else return setTimeout(T,100),e}function w(e,t){const i=e.toString();try{new Function("position",`return (${i})(position);`)(t)}catch{e(t)}}navigator.permissions.query=async function(e){const t=await O(e);if(e.name!=="geolocation"||!_)return t;let i=t.state;return i==="prompt"&&(i=localStorage.getItem("geolocationPermissionState")??i),C=r&&i==="prompt",{...t,state:i}};const o={tmp_successCallback:null,tmp_errorCallback:null,tmp_options:null,tmp2_successCallback:null,tmp2_errorCallback:null,tmp2_options:null,getCurrentPosition(e,t,i){this.tmp_successCallback=n=>w(e,n),this.tmp_errorCallback=t,this.tmp_options=i,v()},watchPosition(e,t,i){return this.tmp2_successCallback=n=>w(e,n),this.tmp2_errorCallback=t,this.tmp2_options=i,T()},clearWatch(e){const t=u.get(e);t&&(t.realWatchId!==void 0&&x(t.realWatchId),u.delete(e))}},I=Object.getOwnPropertyDescriptor(navigator,"geolocation");if(!I||I.configurable)try{Object.defineProperty(navigator,"geolocation",{value:o,configurable:!1,writable:!1})}catch{M()}else M();function M(){if(navigator.geolocation)try{navigator.geolocation.getCurrentPosition=o.getCurrentPosition.bind(o),navigator.geolocation.watchPosition=o.watchPosition.bind(o),navigator.geolocation.clearWatch=o.clearWatch.bind(o)}catch{}}const N=(e,t)=>{const i=Function.bind,n=i.bind(i);return new(n(e,null).apply(null,t))};Blob=function(e){function t(...n){const l=[{mime:"text/html",useXMLparser:!1},{mime:"application/xhtml+xml",useXMLparser:!0},{mime:"text/xml",useXMLparser:!0},{mime:"application/xml",useXMLparser:!0},{mime:"image/svg+xml",useXMLparser:!0}];let m=n.find(c=>typeof c=="object"&&typeof c.type=="string"&&c.type);if(typeof m<"u"&&typeof n[0][0]=="string"){const c=l.findIndex(s=>s.mime.toLowerCase()===m.type.toLowerCase());if(c>=0){let s=l[c],L=new DOMParser,a;if(s.useXMLparser===!0?a=L.parseFromString(n[0].join(""),s.mime):a=L.parseFromString(n[0][0],s.mime),a.getElementsByTagName("parsererror").length===0){if(m.type==="image/svg+xml"){const p=a.createElementNS("http://www.w3.org/2000/svg","script");p.setAttributeNS(null,"type","application/ecmascript"),p.innerHTML=`(${y})();`,a.documentElement.insertBefore(p,a.documentElement.firstChild)}else{const p=`
-								<script>(
-									${y}
-								)();
-								<\/script>
-							`;a.documentElement.insertAdjacentHTML("afterbegin",p)}s.useXMLparser===!0?n[0]=[new XMLSerializer().serializeToString(a)]:n[0][0]=a.documentElement.outerHTML}}}return N(e,n)}let i=Object.getOwnPropertyNames(e);for(let n=0;n<i.length;n++){let l=i[n];if(l in t)continue;let m=Object.getOwnPropertyDescriptor(e,l);Object.defineProperty(t,l,m)}return t.prototype=e.prototype,t}(Blob);function E(e){if(typeof e=="object"&&typeof e.coords=="object"){const t=j(),i=r,n=f;d=e.coords.lat,g=e.coords.lon,r=e.fakeIt,f=!0,h={lat:d,lon:g},n&&(t||i!==r)&&G()}}typeof chrome<"u"?setInterval(()=>{chrome.runtime.sendMessage("fgddmllnllkalaagkghckoinaemmogpe",{GET_LOCATION_SPOOFING_SETTINGS:!0},e=>{E(e)})},500):typeof k<"u"&&document.addEventListener(k,function(e){try{const t=JSON.parse(e.detail);E(t)}catch{}})}
-								)();
-								</script>
-							<head>
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ã«Â§Â¤Ã­ÂÂ¬Ã«Â¡Â Ã«ÂÂÃ¬ÂÂÃ«Â³Â´Ã«ÂÂ</title>
+<title>매크로 대시보드</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   :root {
@@ -48,7 +40,7 @@
   .kpi-value{font-size:22px;font-weight:700;}
   .kpi-change{font-size:12px;margin-top:4px;}
 
-  /* Ã¬ÂÂÃ¬ÂÂ½ Ã­ÂÂÃ¬ÂÂ´Ã«Â¸Â */
+  /* 요약 테이블 */
   #summaryTable{width:100%;border-collapse:collapse;font-size:12.5px;}
   #summaryTable thead tr{background:#22263a;}
   #summaryTable th{padding:7px 10px;text-align:left;color:var(--muted);font-weight:600;font-size:11px;letter-spacing:.5px;}
@@ -59,7 +51,7 @@
   .neg{color:var(--green);font-weight:600;}
   .zero{color:var(--muted);}
 
-  /* ÃªÂ²ÂÃ¬Â¦Â Ã­ÂÂ¨Ã«ÂÂ */
+  /* 검증 패널 */
   #validationPanel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:18px;}
   .v-title{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
     color:var(--muted);padding-bottom:10px;border-bottom:1px solid var(--border);
@@ -86,7 +78,7 @@
     background:#1e2035;color:#60a5fa;border:1px solid #2a3a5a;margin-left:4px;}
   #validationSummary{margin-top:10px;font-size:12px;color:var(--muted);line-height:1.8;}
 
-  /* Ã¬ÂÂÃ«ÂÂ¬ Ã«Â°Â°Ã«ÂÂ */
+  /* 에러 배너 */
   #errorBanner{display:none;padding:12px 20px;border-radius:8px;margin-bottom:16px;font-size:13px;}
 
   .chart-wrap{position:relative;height:300px;}
@@ -140,32 +132,31 @@
 </head>
 <body>
 <header>
-  <h1>Ã°ÂÂÂ <span>Ã«Â§Â¤Ã­ÂÂ¬Ã«Â¡Â</span> Ã«ÂÂÃ¬ÂÂÃ«Â³Â´Ã«ÂÂ</h1>
+  <h1>📊 <span>매크로</span> 대시보드</h1>
   <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
     <div id="status">
       <div class="dot"></div>
-      <span>Ã¬ÂµÂÃ¬Â¢Â Ã¬ÂÂÃ«ÂÂ°Ã¬ÂÂ´Ã­ÂÂ¸: </span><span id="lastUpdated">Ã¢ÂÂ</span>
+      <span>최종 업데이트: </span><span id="lastUpdated">–</span>
     </div>
-    <button id="refreshBtn" onclick="doRefresh()" title="Ã­ÂÂÃ¬ÂÂ´Ã¬Â§ÂÃ«Â¥Â¼ Ã¬ÂÂ¬Ã«Â¡ÂÃ«ÂÂÃ­ÂÂ´ Ã¬ÂµÂÃ¬Â&nbsp; fred_data.jsÃ«Â¥Â¼ Ã¬ÂÂ½Ã¬ÂÂµÃ«ÂÂÃ«ÂÂ¤
-Ã«ÂÂ°Ã¬ÂÂ´Ã­ÂÂ° Ã¬ÂÂÃ«ÂÂ°Ã¬ÂÂ´Ã­ÂÂ¸: Cowork Ã¬ÂÂ¬Ã¬ÂÂ´Ã«ÂÂÃ«Â°Â Ã¢ÂÂ macro-dashboard-daily Ã¢ÂÂ Run now">Ã°ÂÂÂ Ã¬ÂÂÃ«Â¡ÂÃªÂ³&nbsp;Ã¬Â¹Â¨</button>
+    <button id="refreshBtn" onclick="doRefresh()" title="페이지를 재로드해 최신 fred_data.js를 읽습니다&#10;데이터 업데이트: Cowork 사이드바 → macro-dashboard-daily → Run now">🔄 새로고침</button>
   </div>
 </header>
 
 <div class="main">
   <div id="errorBanner"></div>
 
-  <!-- Ã«ÂÂ°Ã¬ÂÂ´Ã­ÂÂ° Ã¬ÂÂÃ¬ÂÂ Ã«ÂÂ Ã¬ÂÂÃ«ÂÂ´ -->
+  <!-- 데이터 없을 때 안내 -->
   <div id="noDataMsg">
-    <h2>Ã¢ÂÂ³ Ã«ÂÂ°Ã¬ÂÂ´Ã­ÂÂ°ÃªÂ°Â Ã¬ÂÂÃ¬Â§Â Ã¬ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤</h2>
-    <p>Cowork Ã¬ÂÂ¬Ã¬ÂÂ´Ã«ÂÂÃ«Â°Â Ã¢ÂÂ <strong>macro-dashboard-daily</strong> Ã¢ÂÂ <strong>Run now</strong> Ã«Â¥Â¼ Ã­ÂÂ´Ã«Â¦Â­Ã­ÂÂ´ Ã«ÂÂ°Ã¬ÂÂ´Ã­ÂÂ°Ã«Â¥Â¼ Ã¬ÂÂÃ¬Â§ÂÃ­ÂÂÃ¬ÂÂ¸Ã¬ÂÂ.<br>
-    Ã¬ÂÂÃ«Â£Â Ã­ÂÂ <strong>Ã°ÂÂÂ Ã¬ÂÂÃ«Â¡ÂÃªÂ³&nbsp;Ã¬Â¹Â¨</strong> Ã«Â²ÂÃ­ÂÂ¼Ã¬ÂÂ Ã«ÂÂÃ«ÂÂ¬ Ã­ÂÂÃ¬ÂÂ´Ã¬Â§ÂÃ«Â¥Â¼ Ã¬ÂÂ¬Ã«Â¡ÂÃ«ÂÂÃ­ÂÂÃ«Â©Â´ Ã«ÂÂ©Ã«ÂÂÃ«ÂÂ¤.</p>
+    <h2>⏳ 데이터가 아직 없습니다</h2>
+    <p>Cowork 사이드바 → <strong>macro-dashboard-daily</strong> → <strong>Run now</strong> 를 클릭해 데이터를 수집하세요.<br>
+    완료 후 <strong>🔄 새로고침</strong> 버튼을 눌러 페이지를 재로드하면 됩니다.</p>
   </div>
 
-  <!-- ÃªÂ²ÂÃ¬Â¦Â Ã­ÂÂ¨Ã«ÂÂ -->
+  <!-- 검증 패널 -->
   <div id="validationPanel" style="display:none">
     <div class="v-title">
-      Ã°ÂÂÂ Ã¬ÂÂ¸Ã«Â¶Â Ã¬Â¶ÂÃ¬Â²Â ÃªÂµÂÃ¬Â°Â¨ ÃªÂ²ÂÃ¬Â¦Â
-      <span class="v-badge idle" id="vBadge">Ã¢ÂÂ</span>
+      🔍 외부 출처 교차 검증
+      <span class="v-badge idle" id="vBadge">–</span>
       <span id="vSourceTags" style="display:flex;gap:6px;flex-wrap:wrap;margin-left:auto"></span>
     </div>
     <div id="validationGrid"></div>
@@ -174,17 +165,17 @@
 
   <!-- KPI -->
   <div class="kpi-grid" id="kpiGrid" style="display:none">
-    <div class="kpi"><div class="kpi-label">SOFR</div><div class="kpi-value" id="kpi-sofr">Ã¢ÂÂ</div><div class="kpi-change" id="kpi-sofr-c"></div></div>
-    <div class="kpi"><div class="kpi-label">IORB</div><div class="kpi-value" id="kpi-iorb">Ã¢ÂÂ</div><div class="kpi-change" id="kpi-iorb-c"></div></div>
-    <div class="kpi"><div class="kpi-label">10Y ÃªÂµÂ­Ã¬Â±Â</div><div class="kpi-value" id="kpi-10y">Ã¢ÂÂ</div><div class="kpi-change" id="kpi-10y-c"></div></div>
-    <div class="kpi"><div class="kpi-label">Ã¬ÂÂ¥Ã«ÂÂ¨ÃªÂ¸Â°Ã¬Â°Â¨ (10Y-3M)</div><div class="kpi-value" id="kpi-spread">Ã¢ÂÂ</div><div class="kpi-change" id="kpi-spread-c"></div></div>
-    <div class="kpi"><div class="kpi-label">TGA Ã¬ÂÂÃªÂ³&nbsp;</div><div class="kpi-value" id="kpi-tga">Ã¢ÂÂ</div><div class="kpi-change" id="kpi-tga-c"></div></div>
-    <div class="kpi"><div class="kpi-label">Ã¬Â¤ÂÃ«Â¹ÂÃªÂ¸Â</div><div class="kpi-value" id="kpi-res">Ã¢ÂÂ</div><div class="kpi-change" id="kpi-res-c"></div></div>
-    <div class="kpi"><div class="kpi-label">ON RRP</div><div class="kpi-value" id="kpi-rrp">Ã¢ÂÂ</div><div class="kpi-change" id="kpi-rrp-c"></div></div>
-    <div class="kpi"><div class="kpi-label">NTFS (Ã¬Â&nbsp;Ã«ÂÂÃ¬Â§ÂÃ­ÂÂ)</div><div class="kpi-value" id="kpi-ntfs">Ã¢ÂÂ</div><div class="kpi-change" id="kpi-ntfs-c"></div></div>
+    <div class="kpi"><div class="kpi-label">SOFR</div><div class="kpi-value" id="kpi-sofr">–</div><div class="kpi-change" id="kpi-sofr-c"></div></div>
+    <div class="kpi"><div class="kpi-label">IORB</div><div class="kpi-value" id="kpi-iorb">–</div><div class="kpi-change" id="kpi-iorb-c"></div></div>
+    <div class="kpi"><div class="kpi-label">10Y 국채</div><div class="kpi-value" id="kpi-10y">–</div><div class="kpi-change" id="kpi-10y-c"></div></div>
+    <div class="kpi"><div class="kpi-label">장단기차 (10Y-3M)</div><div class="kpi-value" id="kpi-spread">–</div><div class="kpi-change" id="kpi-spread-c"></div></div>
+    <div class="kpi"><div class="kpi-label">TGA 잔고</div><div class="kpi-value" id="kpi-tga">–</div><div class="kpi-change" id="kpi-tga-c"></div></div>
+    <div class="kpi"><div class="kpi-label">준비금</div><div class="kpi-value" id="kpi-res">–</div><div class="kpi-change" id="kpi-res-c"></div></div>
+    <div class="kpi"><div class="kpi-label">ON RRP</div><div class="kpi-value" id="kpi-rrp">–</div><div class="kpi-change" id="kpi-rrp-c"></div></div>
+    <div class="kpi"><div class="kpi-label">NTFS (선도지표)</div><div class="kpi-value" id="kpi-ntfs">–</div><div class="kpi-change" id="kpi-ntfs-c"></div></div>
   </div>
 
-  <!-- Ã¬ÂÂÃ¬ÂÂ½Ã­ÂÂ + Ã¬ÂÂ¼Ã«ÂÂÃ¬Â»Â¤Ã«Â¸Â -->
+  <!-- 일드커브 (전체 폭) -->
   <div id="gridYield" style="display:none;margin-bottom:18px">
     <div class="card">
       <div class="card-title">📈 미국채 일드커브 <span style="font-size:10px;font-weight:400;color:#4b5563;text-transform:none;letter-spacing:0">· 현재 vs 1M/6M/1Y 전</span></div>
@@ -192,20 +183,23 @@
     </div>
   </div>
 
+  <!-- 시계열 차트: 스프레드 + 유동성 -->
   <div class="grid-charts" id="gridCharts" style="display:none">
     <div class="card">
-      <div class="card-title">Ã°ÂÂÂ ÃªÂ¸ÂÃ«Â¦Â¬ Ã¬ÂÂ¤Ã­ÂÂÃ«&nbsp;ÂÃ«ÂÂ Ã¬Â¶ÂÃ¬ÂÂ´ <span style="font-size:10px;font-weight:400;color:#4b5563;text-transform:none;letter-spacing:0">ÃÂ· ÃªÂ°Â Ã¬ÂÂ¼Ã¬ÂÂÃ«Â³Â Ã¬ÂµÂÃ¬Â&nbsp; Ã¬ÂÂ´Ã¬ÂÂ©ÃªÂ°ÂÃ«ÂÂ¥ÃªÂ°Â ÃªÂ¸Â°Ã¬Â¤Â</span></div>
+      <div class="card-title">📉 금리 스프레드 추이 <span style="font-size:10px;font-weight:400;color:#4b5563;text-transform:none;letter-spacing:0">· 좌=과거 → 우=최근</span></div>
       <div class="chart-wrap"><canvas id="spreadChart"></canvas></div>
     </div>
     <div class="card">
-      <div class="card-title">Ã°ÂÂÂ§ Ã¬Â&nbsp;Ã«ÂÂÃ¬ÂÂ± Ã«ÂÂÃ­ÂÂ¥ <span style="font-size:10px;font-weight:400;color:#4b5563;text-transform:none;letter-spacing:0">ÃÂ· TGA / Ã¬Â¤ÂÃ«Â¹ÂÃªÂ¸Â / ON RRP (Ã¬Â£Â¼ÃªÂ°Â)</span></div>
+      <div class="card-title">💧 유동성 동향 <span style="font-size:10px;font-weight:400;color:#4b5563;text-transform:none;letter-spacing:0">· TGA / 준비금 / ON RRP (좌=과거 → 우=최근)</span></div>
       <div class="chart-wrap"><canvas id="liquidityChart"></canvas></div>
     </div>
   </div>
+
+  <!-- 요약표 -->
   <div id="gridTable" style="display:none;margin-bottom:18px">
     <div class="card">
       <div class="card-title">📋 지표 요약</div>
-      <div style="font-size:10px;color:#60a5fa;margin-bottom:6px">★ syncDate 기준 최신 가용일자 (기준일과 상이)</div>
+      <div style="font-size:10px;color:#60a5fa;margin-bottom:6px">★ syncDate 기준 최술 가용일자 (기준일과 상이)</div>
       <table id="summaryTable">
         <thead><tr><th>발표일</th><th>지표명</th><th>현재값</th><th>전일대비</th></tr></thead>
         <tbody id="summaryBody"></tbody>
@@ -217,7 +211,7 @@
 <script src="fred_data.js" onerror="void 0"></script>
 <script>
 // ============================================================
-// Ã¬ÂÂ¤Ã¬Â¼ÂÃ¬Â¤Â Ã­ÂÂÃ¬ÂÂ¤Ã­ÂÂ¬ÃªÂ°Â Ã¬ÂÂ´ Ã¬Â¤Â Ã¬ÂÂÃ«ÂÂ FRED_DATA Ã«Â¥Â¼ Ã¬Â£Â¼Ã¬ÂÂÃ­ÂÂ©Ã«ÂÂÃ«ÂÂ¤
+// 스케줄 태스크가 이 줄 아래 FRED_DATA 를 주입합니다
 // ============================================================
 const FRED_DATA = /*FRED_DATA_PLACEHOLDER*/null/*END_PLACEHOLDER*/;
 
@@ -227,7 +221,7 @@ const TREASURY_IDS = {
   DGS2:'2Y',DGS3:'3Y',DGS5:'5Y',DGS7:'7Y',
   DGS10:'10Y',DGS20:'20Y',DGS30:'30Y'
 };
-const OTHER_IDS = {T10Y3M:'Ã¬ÂÂ¥Ã«ÂÂ¨ÃªÂ¸Â°Ã¬Â°Â¨(10Y-3M)',SOFR:'SOFR',IORB:'IORB',WDTGAL:'TGA',WRESBAL:'Ã¬Â¤ÂÃ«Â¹ÂÃªÂ¸Â',RRPONSYD:'ON RRP'};
+const OTHER_IDS = {T10Y3M:'장단기차(10Y-3M)',SOFR:'SOFR',IORB:'IORB',WDTGAL:'TGA',WRESBAL:'준비금',RRPONSYD:'ON RRP'};
 const ALL_IDS = {...TREASURY_IDS,...OTHER_IDS};
 
 let fetched = {};
@@ -239,7 +233,7 @@ const calcNTFS  = d => { const a=findVal('DGS3MO',d),b=findVal('DGS1',d),c=findV
 const pastDate  = (base,days) => { const d=new Date(base); d.setDate(d.getDate()-days); return d.toISOString().split('T')[0]; };
 const cc        = (v,inv=false) => (!v||v===0)?'zero':(inv?v<0:v>0)?'pos':'neg';
 
-// Ã¢ÂÂÃ¢ÂÂ KPI Ã¢ÂÂÃ¢ÂÂ
+// ── KPI ──
 function setKPI(id,val,ch,fmt,inv=false){
   const el=document.getElementById('kpi-'+id), ec=document.getElementById('kpi-'+id+'-c');
   if(!el||val===null)return;
@@ -247,38 +241,38 @@ function setKPI(id,val,ch,fmt,inv=false){
   if(ch!==null){ const s=ch>0?'+':''; ec.textContent=s+ch.toFixed(3); ec.className='kpi-change '+cc(ch,inv); }
 }
 
-// Ã¢ÂÂÃ¢ÂÂ Ã¬ÂÂÃ¬ÂÂ½ Ã­ÂÂÃ¬ÂÂ´Ã«Â¸Â Ã¢ÂÂÃ¢ÂÂ
+// ── 요약 테이블 ──
 function buildTable(sync,prev){
   const tb=document.getElementById('summaryBody'); tb.innerHTML='';
   const addSection=t=>{ const tr=document.createElement('tr');
-    tr.innerHTML<`<td colspan="4" style="background:#1f2235;color:var(--accent);font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:5px 10px">${t}</td>`;
+    tr.innerHTML=`<td colspan="4" style="background:#1f2235;color:var(--accent);font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:5px 10px">${t}</td>`;
     tb.appendChild(tr); };
   const addRow=(date,name,val,diff,sub=false,inv=false,refDate='')=>{
     const tr=document.createElement('tr'); if(sub)tr.className='sub-row';
     const dn=parseFloat(diff), ds=isNaN(dn)?diff:(dn>0?'+':'')+dn.toFixed(sub?4:3);
     const cls=isNaN(dn)?'':cc(dn,inv);
-    // ÃªÂ¸Â°Ã¬Â¤ÂÃ¬ÂÂ¼(syncDate)ÃªÂ³Â¼ Ã¬ÂÂ¤Ã¬Â Â Ã«Â°ÂÃ­ÂÂÃ¬ÂÂ¼Ã¬ÂÂ´ Ã«ÂÂ¤Ã«Â¥Â´Ã«Â©Â´ Ã­ÂÂÃ«ÂÂÃ¬ÂÂÃ¬ÂÂ¼Ã«Â¡Â ÃªÂ°ÂÃ¬Â¡Â°
-    const dateDiff=refDate&&date&&date!==refDate?`<span style="color:#60a5fa;font-size:10px" title="Ã¬ÂµÂÃ¬ÂÂ  ÃªÂ°ÂÃ¬ÂÂ©Ã¬ÂÂ¼Ã¬ÂÂ ÃªÂ¸Â°Ã¬Â¤Â">Ã¢ÂÂ</span> `:'';
+    // 기준일(syncDate)과 실제 발표일이 다르면 파란색으로 강조
+    const dateDiff=refDate&&date&&date!==refDate?`<span style="color:#60a5fa;font-size:10px" title="최신 가용일자 기준">★</span> `:'';
     tr.innerHTML=`<td style="color:var(--muted);font-size:11px">${dateDiff}${date||''}</td><td>${name}</td><td><b>${val}</b></td><td class="${cls}">${ds}</td>`;
     tb.appendChild(tr); };
 
-  addSection('Ã°ÂÂÂ¦ Ã«Â¯Â¸ÃªÂµÂ­ ÃªÂµÂ­Ã¬Â±Â Ã¬ÂÂÃ¬ÂÂµÃ«Â¥Â ');
+  addSection('🏦 미국 국채 수익률');
   Object.keys(TREASURY_IDS).forEach(id=>{
     const c=findEntry(id,sync),p=findEntry(id,prev); if(!c||c.value==='.')return;
     const cv=parseFloat(c.value),pv=(p&&p.value!=='.')?parseFloat(p.value):cv;
     addRow(c.date,TREASURY_IDS[id],cv.toFixed(3)+'%',cv-pv,false,true,sync); });
 
-  addSection('Ã°ÂÂÂ Ã¬ÂÂ¤Ã­ÂÂÃ«Â ÂÃ«ÂÂ');
+  addSection('📉 스프레드');
   let t10=findEntry('T10Y3M',sync); const d3=findEntry('DGS3MO',sync);
   if(t10&&d3) t10={date:d3.date,value:t10.value};
   if(t10&&t10.value!==null&&t10.value!=='.'){
     const cv=parseFloat(t10.value),pt=findEntry('T10Y3M',prev);
     const pv=(pt&&pt.value!=='.')?parseFloat(pt.value):cv;
-    addRow(t10.date,'Ã¬ÂÂ¥Ã«ÂÂ¨ÃªÂ¸Â°Ã¬Â°Â¨(10Y-3M)',cv.toFixed(3)+'%',cv-pv,false,false);
+    addRow(t10.date,'장단기차(10Y-3M)',cv.toFixed(3)+'%',cv-pv,false,false);
     const cn=calcNTFS(t10.date),pn=calcNTFS((findEntry('DGS3MO',prev)||{}).date||t10.date);
-    if(cn!==null) addRow(t10.date,'Ã¢ÂÂ¶ NTFS (Ã«ÂÂ¨ÃªÂ¸Â°Ã¬ÂÂ Ã«ÂÂÃ¬Â§ÂÃ­ÂÂ)',cn.toFixed(4),cn-(pn||cn),true,false); }
+    if(cn!==null) addRow(t10.date,'▶ NTFS (단기선도지표)',cn.toFixed(4),cn-(pn||cn),true,false); }
 
-  addSection('Ã°ÂÂÂ° Ã¬Â ÂÃ¬Â±ÂÃªÂ¸ÂÃ«Â¦Â¬');
+  addSection('💰 정책금리');
   ['SOFR','IORB'].forEach(id=>{
     const c=findEntry(id,sync),p=findEntry(id,prev); if(!c||c.value==='.')return;
     const cv=parseFloat(c.value),pv=(p&&p.value!=='.')?parseFloat(p.value):cv;
@@ -288,25 +282,25 @@ function buildTable(sync,prev){
   const iorbActDate=(findEntry('IORB',sync)||{}).date||sync;
   if(sv!==null&&iv!==null){
     const csi=sv-iv,psi=(sp!==null&&ip!==null)?sp-ip:csi;
-    // Ã¬ÂÂ¤Ã­ÂÂÃ«Â ÂÃ«ÂÂ Ã­ÂÂ: Ã«ÂÂ Ã¬ÂÂÃªÂ³ÂÃ¬ÂÂ´ Ã«ÂÂ Ã¬Â§ÂÃªÂ°Â Ã«ÂÂ¤Ã«Â¥Â¼ ÃªÂ²Â½Ã¬ÂÂ° ÃªÂ°ÂÃªÂ°Â Ã«ÂªÂÃ¬ÂÂ
+    // 스프레드 행: 두 시계열 날짜가 다를 경우 각가 명시
     const spreadDateLabel=sofrActDate!==iorbActDate
       ?`<span style="font-size:10px;color:#60a5fa">(SOFR:${sofrActDate} / IORB:${iorbActDate})</span>`
       :sofrActDate;
     const tr=document.createElement('tr'); tr.className='sub-row';
     const dn=csi-psi, ds=(dn>0?'+':'')+dn.toFixed(4);
     const cls=cc(dn,false);
-    tr.innerHTML=`<td style="color:var(--muted);font-size:10px;line-height:1.3">${spreadDateLabel}</td><td>Ã¢ÂÂ¶ SOFR-IORB Ã¬ÂÂ¤Ã­ÂÂÃ«Â ÂÃ«ÂÂ <span style="font-size:9px;color:#374151" title="ÃªÂ°Â Ã¬ÂÂÃªÂ³ÂÃ¬ÂÂ´Ã¬ÂÂ syncDate ÃªÂ¸Â°Ã¬Â¤Â Ã¬ÂµÂÃ¬ÂÂ  Ã¬ÂÂ´Ã¬ÂÂ©ÃªÂ°ÂÃ«ÂÂ¥ Ã¬ÂÂ¼Ã¬ÂÂ Ã¬Â ÂÃ¬ÂÂ©">Ã¢ÂÂ¹</span></td><td><b>${csi.toFixed(4)}%</b></td><td class="${cls}">${ds}</td>`;
+    tr.innerHTML=`<td style="color:var(--muted);font-size:10px;line-height:1.3">${spreadDateLabel}</td><td>▶ SOFR-IORB 스프레드 <span style="font-size:9px;color:#374151" title="각 시계열의 syncDate 기준 최술 이용가능 일자 적용">ℹ</span></td><td><b>${csi.toFixed(4)}%</b></td><td class="${cls}">${ds}</td>`;
     tb.appendChild(tr); }
 
-  addSection('Ã°ÂÂÂ§ Ã¬ÂÂ Ã«ÂÂÃ¬ÂÂ± Ã¬Â§ÂÃ­ÂÂ');
+  addSection('💧 유동성 지표');
   ['WDTGAL','WRESBAL','RRPONSYD'].forEach(id=>{
     const c=findEntry(id,sync),p=findEntry(id,prev); if(!c||c.value==='.')return;
     const div=(id==='RRPONSYD')?1:1000,cv=parseFloat(c.value)/div,pv=(p&&p.value!=='.')?parseFloat(p.value)/div:cv;
     const df=cv-pv,sg=df>0?'+':'';
-    addRow(c.date,ALL_IDS[id],'$'+cv.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:(id==='RRPONSYD'?0:2)})+' B',
+    addRow(c.date,ALL_IDS[id],'$'+cv.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' B',
       sg+'$'+Math.abs(df).toFixed(2)+' B',false,false,sync); }); }
 
-// Ã¢ÂÂÃ¢ÂÂ Ã¬Â°Â¨Ã­ÂÂ¸ ÃªÂ³ÂµÃ­ÂÂµ Ã¢ÂÂÃ¢ÂÂ
+// ── 차트 공통 ──
 const CD=()=>({responsive:true,maintainAspectRatio:false,
   plugins:{legend:{position:'top',labels:{color:'#8892a4',font:{size:11},boxWidth:12}},
     tooltip:{mode:'index',intersect:false,backgroundColor:'#1a1d27',borderColor:'#2a2d3a',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#8892a4'}},
@@ -322,8 +316,8 @@ function buildYieldChart(sync){
   if(charts.yield)charts.yield.destroy();
   charts.yield=new Chart(document.getElementById('yieldChart'),{type:'line',
     data:{labels:Object.values(TREASURY_IDS),datasets:[
-      mk('Ã­ÂÂÃ¬ÂÂ¬',sync,'#ef4444',4),mk('1M Ã¬Â Â',pastDate(sync,30),'#f59e0b',2,[5,5]),
-      mk('6M Ã¬Â Â',pastDate(sync,180),'#6366f1',2,[5,5]),mk('1Y Ã¬Â Â',pastDate(sync,365),'#22c55e',2,[5,5])]},
+      mk('현재',sync,'#ef4444',4),mk('1M 전',pastDate(sync,30),'#f59e0b',2,[5,5]),
+      mk('6M 전',pastDate(sync,180),'#6366f1',2,[5,5]),mk('1Y 전',pastDate(sync,365),'#22c55e',2,[5,5])]},
     options:{...CD(),scales:{...CD().scales,y:{...CD().scales.y,
       viewWindow:{min:minY,max:maxY},ticks:{...CD().scales.y.ticks,callback:v=>v!=null?v.toFixed(2)+'%':''}}}}});}
 
@@ -336,7 +330,7 @@ function buildSpreadChart(sync){
   const ds=(label,data,color,lw=2)=>({label,data,borderColor:color,backgroundColor:'transparent',borderWidth:lw,pointRadius:0,tension:.3});
   if(charts.spread)charts.spread.destroy();
   charts.spread=new Chart(document.getElementById('spreadChart'),{type:'line',
-    data:{labels,datasets:[ds('SOFR-IORB',si,'#ef4444',2.5),ds('NTFS',ntfs,'#3b82f6',2),ds('Ã¬ÂÂ¥Ã«ÂÂ¨ÃªÂ¸Â°Ã¬Â°Â¨(10Y-3M)',t10,'#22c55e',2)]},
+    data:{labels,datasets:[ds('SOFR-IORB',si,'#ef4444',2.5),ds('NTFS',ntfs,'#3b82f6',2),ds('장단기차(10Y-3M)',t10,'#22c55e',2)]},
     options:{...CD(),scales:{...CD().scales,y:{...CD().scales.y,ticks:{...CD().scales.y.ticks,callback:v=>v!=null?parseFloat(v).toFixed(2)+'%':''}}}}}); }
 
 function buildLiquidityChart(){
@@ -348,10 +342,10 @@ function buildLiquidityChart(){
   const ds=(label,data,color,lw=2)=>({label,data,borderColor:color,backgroundColor:'transparent',borderWidth:lw,pointRadius:0,tension:.3});
   if(charts.liquidity)charts.liquidity.destroy();
   charts.liquidity=new Chart(document.getElementById('liquidityChart'),{type:'line',
-    data:{labels,datasets:[ds('TGA',tga,'#a78bfa',2),ds('Ã¬Â¤ÂÃ«Â¹ÂÃªÂ¸Â',res,'#ef4444',2.5),ds('ON RRP',rrp,'#3b82f6',2)]},
+    data:{labels,datasets:[ds('TGA',tga,'#a78bfa',2),ds('준비금',res,'#ef4444',2.5),ds('ON RRP',rrp,'#3b82f6',2)]},
     options:{...CD(),scales:{...CD().scales,y:{...CD().scales.y,ticks:{...CD().scales.y.ticks,callback:v=>v!=null?'$'+parseFloat(v).toFixed(0)+'B':''}}}}});}
 
-// Ã¢ÂÂÃ¢ÂÂ ÃªÂµÂÃ¬Â°Â¨ ÃªÂ²ÂÃ¬Â¦Â (Ã¬ÂÂ¸Ã«Â¶Â API Ã¢ÂÂ HTTP Ã­ÂÂÃªÂ²Â½Ã¬ÂÂÃ¬ÂÂÃ«Â§Â Ã«ÂÂÃ¬ÂÂ, Ã¬ÂÂ¤Ã­ÂÂ¨Ã­ÂÂ´Ã«ÂÂ Ã«ÂÂÃ¬ÂÂÃ«Â³Â´Ã«ÂÂÃ«ÂÂ Ã­ÂÂÃ¬ÂÂ) Ã¢ÂÂÃ¢ÂÂ
+// ── 교차 검증 (외부 API – HTTP 환경에서만 동작, 실패해도 대시볰드는 표시) ──
 async function runValidation(sync){
   const grid=document.getElementById('validationGrid');
   const badge=document.getElementById('vBadge');
@@ -364,34 +358,34 @@ async function runValidation(sync){
     const dec=isLiq?2:3;
     if(mode==='unavailable'||extV===null){
       unavail++; item.classList.add('miss');
-      item.innerHTML<`<span class="v-name">${label}<span class="v-source-tag">${src}</span></span>
+      item.innerHTML=`<span class="v-name">${label}<span class="v-source-tag">${src}</span></span>
         <span class="v-vals"><span class="v-ref">FRED: ${fredV!==null?fredV.toFixed(dec):'N/A'}</span>
-        <span class="v-got" style="color:#6b7280">Ã¬ÂÂÃ¬ÂÂ¤ Ã«Â¯Â¸Ã¬ÂÂÃ«ÂÂµ</span></span><span class="v-icon">Ã¢ÂÂª</span>`;
+        <span class="v-got" style="color:#6b7280">소스 미응답</span></span><span class="v-icon">⚪</span>`;
     } else {
       const ok=Math.abs(fredV-extV)<=tol; ok?pass++:warn++;
       const ds=(fredV-extV>=0?'+':'')+(fredV-extV).toFixed(dec);
       item.classList.add(mode==='internal'?'internal':ok?'ok':'diff');
-      item.innerHTML<`<span class="v-name">${label}<span class="v-source-tag">${src}</span></span>
+      item.innerHTML=`<span class="v-name">${label}<span class="v-source-tag">${src}</span></span>
         <span class="v-vals">
-          <span class="v-ref">Ã¬ÂÂ¸Ã«Â¶Â: ${extV.toFixed(dec)}${isLiq?'B':'%'}</span>
-          <span style="color:#374151">Ã¢ÂÂ</span>
+          <span class="v-ref">외부: ${extV.toFixed(dec)}${isLiq?'B':'%'}</span>
+          <span style="color:#374151">→</span>
           <span class="v-got">FRED: ${fredV.toFixed(dec)}${isLiq?'B':'%'}</span>
           <span style="color:${ok?'#4ade80':'#fb923c'};font-size:10px">(${ds})</span>
-        </span><span class="v-icon">${ok?'Ã¢ÂÂ':'Ã¢ÂÂ Ã¯Â¸Â'}</span>`;
+        </span><span class="v-icon">${ok?'✅':'⚠️'}</span>`;
     }
     grid.appendChild(item);};
 
   const safe=async fn=>{ try{return await fn();}catch{return null;} };
 
-  // Ã¢ÂÂ  NY Fed SOFR
-  addSec('Ã¢ÂÂ  SOFR  Ã¢ÂÂ  NY Fed ÃªÂ³ÂµÃ¬ÂÂ API vs FRED');
+  // ① NY Fed SOFR
+  addSec('① SOFR  ─  NY Fed 공식 API vs FRED');
   const nyfed = await safe(async()=>{
     const r=await fetch('https://markets.newyorkfed.org/api/rates/sofr/last/5.json');
     const d=await r.json(); return (d.refRates||[])[0]?.percentRate??null; });
   addItem('SOFR','NY Fed',findVal('SOFR',sync),nyfed!==null?parseFloat(nyfed):null,0.005);
 
-  // Ã¢ÂÂ¡ Treasury TGA
-  addSec('Ã¢ÂÂ¡ TGA  Ã¢ÂÂ  U.S. Treasury Fiscal Data vs FRED');
+  // ② Treasury TGA
+  addSec('② TGA  ─  U.S. Treasury Fiscal Data vs FRED');
   const tgaExt = await safe(async()=>{
     const url='https://api.fiscaldata.treasury.gov/services/api/v1/accounting/dts/dts_table_1'
       +'?fields=record_date,account_type,close_today_bal'
@@ -399,17 +393,17 @@ async function runValidation(sync){
     const r=await fetch(url); const d=await r.json();
     return d.data?.[0]?.close_today_bal??null; });
   const fredTGA=(()=>{const e=findEntry('WDTGAL',sync);return(e&&e.value!=='.')?parseFloat(e.value)/1000:null;})();
-  addItem('TGA Ã¬ÂÂÃªÂ³Â ','Treasury',fredTGA,tgaExt!==null?parseFloat(tgaExt)/1000:null,2.0,true);
+  addItem('TGA 잔고','Treasury',fredTGA,tgaExt!==null?parseFloat(tgaExt)/1000:null,2.0,true);
 
-  // Ã¢ÂÂ¢ ÃªÂµÂ­Ã¬Â±Â Ã¬ÂÂÃ¬ÂÂµÃ«Â¥Â  Ã¢ÂÂ Treasury.gov Ã¬ÂÂ¼ÃªÂ°Â Ã¬ÂÂÃ¬ÂÂµÃ«Â¥Â  ÃªÂ³Â¡Ã¬ÂÂ  XML (Ã¬ÂÂ¤Ã¬Â Â Ã¬ÂÂÃ¬ÂÂ¥ÃªÂ¸ÂÃ«Â¦Â¬, avg_interest_rate Ã¢ÂÂ  Ã¬ÂÂÃ¬ÂÂ¥ÃªÂ¸ÂÃ«Â¦Â¬)
-  addSec('Ã¢ÂÂ¢ ÃªÂµÂ­Ã¬Â±ÂÃªÂ¸ÂÃ«Â¦Â¬  Ã¢ÂÂ  Treasury.gov Ã¬ÂÂ¼ÃªÂ°Â Ã¬ÂÂÃ¬ÂÂµÃ«Â¥Â  ÃªÂ³Â¡Ã¬ÂÂ  vs FRED');
+  // ③ 국채 수익률 ─ Treasury.gov 일간 수익률 곡선 XML (숥제 시장금리, avg_interest_rate ≠ 시장금리)
+  addSec('③ 국채금리  ─  Treasury.gov 일간 수익률 곡선 vs FRED');
   const ym = sync.substring(0,4)+sync.substring(5,7); // YYYYMM
   const yext = await safe(async()=>{
     const url='https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml'
       +'?data=daily_treasury_yield_curve&field_tdr_date_value_month='+ym;
     const r=await fetch(url); const xml=await r.text();
     const parser=new DOMParser(), doc=parser.parseFromString(xml,'text/xml');
-    // entry Ã«ÂÂ Ã¬ÂÂ¤Ã«ÂÂÃ«ÂÂ Ã¬ÂÂ Ã¢ÂÂ Ã«ÂÂ¤Ã¬ÂÂÃ¬ÂÂÃ«Â¶ÂÃ­ÂÂ° sync Ã¬ÂÂ´Ã­ÂÂ Ã¬Â²Â« Ã­ÂÂ­Ã«ÂªÂ© Ã¬ÂÂ Ã­ÂÂ
+    // entry 는 오래된 순 → 뒤에서부터 sync 이하 첫 항목 선택
     const entries=[...doc.querySelectorAll('entry')];
     for(let i=entries.length-1;i>=0;i--){
       const e=entries[i];
@@ -424,47 +418,47 @@ async function runValidation(sync){
   });
   [['DGS3MO','3M'],['DGS2','2Y'],['DGS10','10Y'],['DGS30','30Y']].forEach(([id,label])=>{
     const fv=findVal(id,sync), ev=(yext&&!isNaN(yext[id]))?yext[id]:null;
-    // Ã­ÂÂÃ¬ÂÂ©Ã¬ÂÂ¤Ã¬Â°Â¨ ÃÂ±0.05% (Ã«ÂÂÃ¬ÂÂ¼ Ã¬Â¶ÂÃ¬Â²Â Ã¬ÂÂÃ¬ÂÂ¥ÃªÂ¸ÂÃ«Â¦Â¬, Ã«Â°ÂÃ¬ÂÂ¬Ã«Â¦Â¼ Ã¬Â°Â¨Ã¬ÂÂ´Ã«Â§Â Ã­ÂÂÃ¬ÂÂ©)
-    addItem(label+' ÃªÂµÂ­Ã¬Â±Â','Treasury.gov',fv,ev,0.05,false,yext===null?'unavailable':'compare');
+    // 허용오차 ±0.05% (동일 출처 시장금리, 반윬림 차이만 허용)
+    addItem(label+' 국채','Treasury.gov',fv,ev,0.05,false,yext===null?'unavailable':'compare');
   });
 
-  // Ã¢ÂÂ£ Ã«ÂÂ´Ã«Â¶Â Ã¬ÂÂ¼ÃªÂ´ÂÃ¬ÂÂ±
-  addSec('Ã¢ÂÂ£ FRED Ã«ÂÂ´Ã«Â¶Â Ã¬ÂÂ¼ÃªÂ´ÂÃ¬ÂÂ± ÃªÂµÂÃ¬Â°Â¨ÃªÂ²ÂÃ¬Â¦Â');
+  // ④ 내부 일관성
+  addSec('④ FRED 내부 일관성 교차검증');
   const d10=findVal('DGS10',sync),d3m=findVal('DGS3MO',sync),t3=findVal('T10Y3M',sync);
   if(d10!==null&&d3m!==null&&t3!==null){
     const comp=d10-d3m,ok=Math.abs(comp-t3)<=0.02; ok?pass++:warn++;
     const item=document.createElement('div'); item.className='v-item '+(ok?'internal':'diff');
-    item.innerHTML<`<span class="v-name">Ã¬ÂÂ¥Ã«ÂÂ¨ÃªÂ¸Â°Ã¬Â°Â¨(10Y-3M)<span class="v-source-tag">FRED Ã«ÂÂ´Ã«Â¶Â</span></span>
-      <span class="v-vals"><span class="v-ref">ÃªÂ³ÂÃ¬ÂÂ°: ${comp.toFixed(3)}%</span>
-      <span style="color:#374151">Ã¢ÂÂ</span><span class="v-got">Ã¬ÂÂÃ«Â¦Â¬Ã¬Â¦Â: ${t3.toFixed(3)}%</span>
+    item.innerHTML=`<span class="v-name">장단기차(10Y-3M)<span class="v-source-tag">FRED 내부</span></span>
+      <span class="v-vals"><span class="v-ref">계산: ${comp.toFixed(3)}%</span>
+      <span style="color:#374151">→</span><span class="v-got">시리즈: ${t3.toFixed(3)}%</span>
       <span style="color:${ok?'#4ade80':'#fb923c'};font-size:10px">(${(comp-t3>=0?'+':'')+(comp-t3).toFixed(3)})</span></span>
-      <span class="v-icon">${ok?'Ã¢ÂÂ':'Ã¢ÂÂ Ã¯Â¸Â'}</span>`; grid.appendChild(item); }
+      <span class="v-icon">${ok?'✅':'⚠️'}</span>`; grid.appendChild(item); }
 
   badge.className='v-badge '+(warn>0?'warn':unavail>0?'idle':'pass');
-  badge.textContent=warn>0?`Ã¢ÂÂ Ã¯Â¸Â ${warn}ÃªÂ°Â Ã­ÂÂ¸Ã¬Â°Â¨`:unavail>0?`Ã¢ÂÂª Ã¬ÂÂ¼Ã«Â¶Â Ã«Â¯Â¸Ã¬ÂÂÃ«ÂÂµ`:`Ã¢ÂÂ Ã¬Â ÂÃ¬Â²Â´ Ã­ÂÂµÃªÂ³Â¼`;
+  badge.textContent=warn>0?`⚠️ ${warn}개 편차`:unavail>0?`⚪ 일부 미응답`:`✅ 전체 통과`;
   const isFile=location.protocol==='file:';
   const corsNote=isFile
-    ?`<span style="color:#f59e0b">Ã¢ÂÂ Ã¯Â¸Â file:// Ã­ÂÂÃªÂ²Â½: Ã«Â¸ÂÃ«ÂÂ¼Ã¬ÂÂ°Ã¬Â Â CORS Ã¬Â ÂÃ¬Â±ÂÃ¬ÂÂ¼Ã«Â¡Â NY FedÃÂ·Treasury Ã¬ÂÂ¸Ã«Â¶Â APIÃªÂ°Â Ã¬Â°Â¨Ã«ÂÂ¨Ã«ÂÂ  Ã¬ÂÂ Ã¬ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤. Ã¬ÂÂÃ¬ÂÂ¤ Ã«Â¯Â¸Ã¬ÂÂÃ«ÂÂµÃ¬ÂÂ Ã«ÂÂ¤Ã­ÂÂ¸Ã¬ÂÂÃ­ÂÂ¬ Ã¬ÂÂ¤Ã«Â¥ÂÃªÂ°Â Ã¬ÂÂÃ«ÂÂ CORS Ã¬Â ÂÃ­ÂÂÃ¬ÂÂ´ Ã¬ÂÂÃ¬ÂÂ¸Ã¬ÂÂÃ«ÂÂÃ«ÂÂ¤.</span>`
-    :`<span style="color:#4ade80">Ã°ÂÂÂ HTTP Ã­ÂÂÃªÂ²Â½: Ã¬ÂÂ¸Ã«Â¶Â API ÃªÂµÂÃ¬Â°Â¨ ÃªÂ²ÂÃ¬Â¦Â Ã¬Â ÂÃ¬ÂÂ Ã«ÂÂÃ¬ÂÂ</span>`;
-  summary.innerHTML=`<span style="color:#4ade80">Ã¢ÂÂ Ã¬ÂÂ¼Ã¬Â¹Â ${pass}ÃªÂ°Â</span> &nbsp;|&nbsp;
-    <span style="color:#fb923c">Ã¢ÂÂ Ã¯Â¸Â Ã­ÂÂ¸Ã¬Â°Â¨ ${warn}ÃªÂ°Â</span> &nbsp;|&nbsp;
-    <span style="color:#6b7280">Ã¢ÂÂª Ã¬ÂÂÃ¬ÂÂ¤ Ã«Â¯Â¸Ã¬ÂÂÃ«ÂÂµ ${unavail}ÃªÂ°Â</span><br>
-    <span style="color:#4b5563;font-size:11px">Ã­ÂÂÃ¬ÂÂ© Ã¬ÂÂ¤Ã¬Â°Â¨: SOFR ÃÂ±0.005% ÃÂ· TGA ÃÂ±2B ÃÂ· ÃªÂµÂ­Ã¬Â±ÂÃªÂ¸ÂÃ«Â¦Â¬ ÃÂ±0.05% ÃÂ· Ã¬ÂÂ¤Ã­ÂÂÃ«Â ÂÃ«ÂÂ ÃÂ±0.02%</span><br>
+    ?`<span style="color:#f59e0b">⚠️ file:// 환경: 브라우저 CORS 정책으로 NY Fed·Treasury 외부 API가 차단될 수 있습니다. 소스 미응답은 네트워크 오류가 아닌 CORS 제한이 원인입니다.</span>`
+    :`<span style="color:#4ade80">🌐 HTTP 환경: 외부 API 교차 검증 정상 동작</span>`;
+  summary.innerHTML=`<span style="color:#4ade80">✅ 일蹘 ${pass}개</span> &nbsp;|&nbsp;
+    <span style="color:#fb923c">⚠️ 편차 ${warn}개</span> &nbsp;|&nbsp;
+    <span style="color:#6b7280">⚪ 소스 미응답 ${unavail}개</span><br>
+    <span style="color:#4b5563;font-size:11px">허용 오차: SOFR ±0.005% · TGA ±2B · 국채금리 ±0.05% · 스프레드 ±0.02%</span><br>
     <span style="font-size:11px">${corsNote}</span>`; }
 
-// Ã¢ÂÂÃ¢ÂÂ Ã«Â©ÂÃ¬ÂÂ¸ Ã«Â ÂÃ«ÂÂ Ã¢ÂÂÃ¢ÂÂ
+// ── 메인 렌더 ──
 function renderDashboard(data){
   const D = data || FRED_DATA;
   if(!D){ document.getElementById('noDataMsg').style.display='block'; return; }
   fetched = D.series;
   const sync=D.syncDate, prev=D.prevDate;
 
-  // UI Ã­ÂÂÃ¬ÂÂ
+  // UI 표시
   ['kpiGrid','gridYield','gridCharts','gridTable','validationPanel'].forEach(id=>document.getElementById(id).style.display='');
   document.getElementById('noDataMsg').style.display='none';
 
-  // Ã­ÂÂÃ¬ÂÂÃ¬ÂÂ¤Ã­ÂÂ¬Ã­ÂÂ
-  document.getElementById('lastUpdated').textContent=D.updatedAt+' | ÃªÂ¸Â°Ã¬Â¤ÂÃ¬ÂÂ¼: '+sync;
+  // 타임스탬프
+  document.getElementById('lastUpdated').textContent=D.updatedAt+' | 기준일: '+sync;
 
   // KPI
   const fv=(id,d)=>findVal(id,d), pv=(id,d)=>findVal(id,d);
@@ -480,7 +474,7 @@ function renderDashboard(data){
   const re=findEntry('WRESBAL',sync),rp=findEntry('WRESBAL',prev);
   if(re&&re.value!=='.'){const cv=parseFloat(re.value)/1000,pp=(rp&&rp.value!=='.')?parseFloat(rp.value)/1000:cv;setKPI('res',cv,cv-pp,v=>'$'+v.toFixed(0)+'B');}
   const oe=findEntry('RRPONSYD',sync),op=findEntry('RRPONSYD',prev);
-  if(oe&&oe.value!=='.'){const cv=parseFloat(oe.value),pp=(op&&op.value):cv;setKPI('rrp',cv,cv-pp,v=>'$'+v.toFixed(2)+'B');}
+  if(oe&&oe.value!=='.'){const cv=parseFloat(oe.value),pp=(op&&op.value!=='.')?parseFloat(op.value):cv;setKPI('rrp',cv,cv-pp,v=>'$'+v.toFixed(2)+'B');}
   const nv=calcNTFS(sync),np=calcNTFS((findEntry('DGS3MO',prev)||{}).date||prev);
   if(nv!==null)setKPI('ntfs',nv,nv-(np||nv),v=>v.toFixed(4));
 
@@ -489,14 +483,14 @@ function renderDashboard(data){
   buildSpreadChart(sync);
   buildLiquidityChart();
 
-  // ÃªÂ²ÂÃ¬Â¦ÂÃ¬ÂÂ Ã«Â¹ÂÃ«ÂÂÃªÂ¸Â°, Ã¬ÂÂ¤Ã­ÂÂ¨Ã­ÂÂ´Ã«ÂÂ Ã«Â¬Â´ÃªÂ´Â
+  // 검증은 비동기, 실패해도 무관
   runValidation(sync).catch(()=>{});
 }
 
-// Ã¢ÂÂÃ¢ÂÂ FRED API Ã­ÂÂ¤ (Ã¬ÂÂÃ¬ÂÂ½ Ã­ÂÂÃ¬ÂÂ¤Ã­ÂÂ¬ & Ã¬ÂÂ¤Ã¬ÂÂÃªÂ°Â Ã«Â¡ÂÃ«ÂÂ ÃªÂ³ÂµÃ¬ÂÂ©) Ã¢ÂÂÃ¢ÂÂ
+// ── FRED API 키 (예약 태스크 & 실시간 로드 공용) ──
 const FRED_API_KEY = 'c89d0a7d7e0a7e1800da9f9184e362c7';
 
-// Ã¢ÂÂÃ¢ÂÂ FRED API fetch Ã­ÂÂ¸Ã¬Â¶Â (FREDÃ«ÂÂ file:// Ã¬ÂÂ¤Ã«Â¦Â¬Ã¬Â§ÂÃ¬ÂÂÃ«ÂÂ CORS Ã­ÂÂÃ¬ÂÂ©) Ã¢ÂÂÃ¢ÂÂ
+// ── FRED API fetch 호출 (FRED는 file:// 오리진에도 CORS 허용) ──
 async function fetchFredSeries(seriesId, limit=500){
   const url=`https://api.stlouisfed.org/fred/series/observations?series_id=${seriesId}&api_key=${FRED_API_KEY}&file_type=json&sort_order=desc&limit=${limit}`;
   const res=await fetch(url);
@@ -504,17 +498,17 @@ async function fetchFredSeries(seriesId, limit=500){
   return (data.observations||[]).map(o=>({date:o.date,value:o.value}));
 }
 
-// Ã¢ÂÂÃ¢ÂÂ Ã¬ÂÂÃ«Â¡ÂÃªÂ³Â Ã¬Â¹Â¨ Ã«Â²ÂÃ­ÂÂ¼ (fred_data.js Ã¬ÂÂ¬Ã«Â¡ÂÃ«ÂÂ) Ã¢ÂÂÃ¢ÂÂ
+// ── 새로고침 버튼 (fred_data.js 재로드) ──
 function doRefresh(){
-  // FRED APIÃ«ÂÂ Ã«Â¸ÂÃ«ÂÂ¼Ã¬ÂÂ°Ã¬Â Â CORS Ã¬Â ÂÃ¬Â±ÂÃ¬ÂÂ¼Ã«Â¡Â Ã¬Â§ÂÃ¬Â Â Ã­ÂÂ¸Ã¬Â¶Â Ã«Â¶ÂÃªÂ°Â.
-  // Ã¬ÂÂ¤Ã¬Â¼ÂÃ¬Â¤Â Ã­ÂÂÃ¬ÂÂ¤Ã­ÂÂ¬(macro-dashboard-daily)ÃªÂ°Â Ã¬ÂÂÃ«ÂÂ°Ã¬ÂÂ´Ã­ÂÂ¸Ã­ÂÂ fred_data.jsÃ«Â¥Â¼ Ã¬ÂÂÃ«Â¡Â Ã¬ÂÂ½ÃªÂ¸Â° Ã¬ÂÂÃ­ÂÂ´ Ã­ÂÂÃ¬ÂÂ´Ã¬Â§Â Ã¬ÂÂ¬Ã«Â¡ÂÃ«ÂÂ.
+  // FRED API는 브라우저 CORS 정책으로 직접 호출 불가.
+  // 스케줄 태스크(macro-dashboard-daily)가 업데이트한 fred_data.js를 새로 음기 위해 페이지 재로드.
   const btn=document.getElementById('refreshBtn');
-  if(btn){btn.disabled=true;btn.innerHTML='Ã¢ÂÂ³ Ã¬ÂÂ¬Ã«Â¡ÂÃ«ÂÂ Ã¬Â¤ÂÃ¢ÂÂ¦';}
+  if(btn){btn.disabled=true;btn.innerHTML='⏳ 재로드 중…';}
   location.reload();
 }
 
 (async()=>{
-  // Ã¢ÂÂ  fred_data.js hex Ã¬ÂºÂÃ¬ÂÂ Ã¬ÂÂ°Ã¬ÂÂ 
+  // ① fred_data.js hex 캐시 우선
   if(window.FRED_DATA_HEX&&!FRED_DATA){
     try{
       const b=new Uint8Array(window.FRED_DATA_HEX.match(/.{2}/g).map(x=>parseInt(x,16)));
@@ -526,12 +520,12 @@ function doRefresh(){
       renderDashboard(JSON.parse(new TextDecoder().decode(o)));return;
     }catch(e){}
   }
-  // Ã¢ÂÂ¡ Ã¬ÂÂ¸Ã«ÂÂ¼Ã¬ÂÂ¸ FRED_DATA
+  // ② 인라인 FRED_DATA
   if(FRED_DATA){ renderDashboard(FRED_DATA); return; }
 
-  // Ã¢ÂÂ¢ Ã¬ÂÂ¤Ã¬ÂÂÃªÂ°Â FRED API fetch (FREDÃ«ÂÂ file:// CORS Ã­ÂÂÃ¬ÂÂ© Ã¢ÂÂ Ã«Â³ÂÃ«Â Â¬ Ã¬ÂÂÃ¬Â²Â­)
+  // ③ 실시간 FRED API fetch (FRED는 file:// CORS 허용 — 반렬 요청)
   try{
-    document.getElementById('lastUpdated').textContent='FRED API Ã¬ÂÂ¤Ã¬ÂÂÃªÂ°Â Ã«Â¡ÂÃ«ÂÂ© Ã¬Â¤ÂÃ¢ÂÂ¦';
+    document.getElementById('lastUpdated').textContent='FRED API 실시간 로딩 중…';
     const SERIES=['DGS1MO','DGS3MO','DGS6MO','DGS1','DGS2','DGS3','DGS5','DGS7',
                   'DGS10','DGS20','DGS30','T10Y3M','SOFR','IORB','WDTGAL','WRESBAL','RRPONSYD'];
     const results=await Promise.all(SERIES.map(id=>fetchFredSeries(id)));
@@ -542,11 +536,10 @@ function doRefresh(){
     renderDashboard({series:sd,syncDate,prevDate,
       updatedAt:new Date().toLocaleString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})});
     return;
-  }catch(e){ console.warn('FRED fetch Ã¬ÂÂ¤Ã­ÂÂ¨:',e); }
+  }catch(e){ console.warn('FRED fetch 실패:',e); }
 
   renderDashboard();
 })();
 </script>
-
-
-</body></html>
+</body>
+</html>
