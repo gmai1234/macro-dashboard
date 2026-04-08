@@ -152,17 +152,6 @@
     완료 후 <strong>🔄 새로고침</strong> 버튼을 눌러 페이지를 재로드하메 됩니다.</p>
   </div>
 
-  <!-- 검증 패널 -->
-  <div id="validationPanel" style="display:none">
-    <div class="v-title">
-      🔍 외부 출처 교차 검증
-      <span class="v-badge idle" id="vBadge">–</span>
-      <span id="vSourceTags" style="display:flex;gap:6px;flex-wrap:wrap;margin-left:auto"></span>
-    </div>
-    <div id="validationGrid"></div>
-    <div id="validationSummary"></div>
-  </div>
-
   <!-- KPI -->
   <div class="kpi-grid" id="kpiGrid" style="display:none">
     <div class="kpi"><div class="kpi-label">SOFR</div><div class="kpi-value" id="kpi-sofr">–</div><div class="kpi-change" id="kpi-sofr-c"></div></div>
@@ -205,6 +194,17 @@
         <tbody id="summaryBody"></tbody>
       </table>
     </div>
+  </div>
+
+  <!-- 검증 패널 (맨 아래로 이동) -->
+  <div id="validationPanel" style="display:none">
+    <div class="v-title">
+      🔍 외부 출처 교차 검증
+      <span class="v-badge idle" id="vBadge">–</span>
+      <span id="vSourceTags" style="display:flex;gap:6px;flex-wrap:wrap;margin-left:auto"></span>
+    </div>
+    <div id="validationGrid"></div>
+    <div id="validationSummary"></div>
   </div>
 </div>
 
