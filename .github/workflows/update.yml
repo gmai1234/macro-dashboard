@@ -1,0 +1,48 @@
+name: Update FRED Data
+
+# Runs twice daily to refresh fred_data.js with the latest FRED observations.
+#  - 23:00 UTC = 08:00 KST (after US market close / before KR business hours)
+#  - 11:00 UTC = 20:00 KST (mid-day in US, catches intraday series like SOFR)
+# Manual runs via the Actions tab ("Run workflow") are always available.
+on:
+  schedule:
+    - cron: '0 23 * * *'
+    - cron: '0 11 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-fred-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Fetch FRED data and rebuild fred_data.js
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python scripts/update_fred_data.py
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet fred_data.js; then
+            echo "No changes to fred_data.js — skipping commit."
+            exit 0
+          fi
+          TS=$(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M KST')
+          git add fred_data.js
+          git commit -m "chore: update FRED data (${TS})"
+          git push

@@ -138,7 +138,7 @@
       <div class="dot"></div>
       <span>최종 업데이트: </span><span id="lastUpdated">–</span>
     </div>
-    <button id="refreshBtn" onclick="doRefresh()" title="페이지를 재로드해 최신 fred_data.js를 읽습니다&#10;데이터 업데이트: Cowork 사이드바 → macro-dashboard-daily → Run now">🔄 새로고침</button>
+    <button id="refreshBtn" onclick="doRefresh()" title="페이지를 재로드해 최신 fred_data.js를 읽습니다&#10;데이터는 GitHub Actions가 매일 08:00 / 20:00 KST에 자동 업데이트합니다">🔄 새로고침</button>
   </div>
 </header>
 
@@ -148,8 +148,8 @@
   <!-- 데이터 없을 때 안내 -->
   <div id="noDataMsg">
     <h2>⏳ 데이터가 아직 없습니다</h2>
-    <p>Cowork 사이드바 → <strong>macro-dashboard-daily</strong> → <strong>Run now</strong> 를 클릭해 데이터를 수집하세요.<br>
-    완료 후 <strong>🔄 새로고침</strong> 버튼을 눌러 페이지를 재로드하메 됩니다.</p>
+    <p>데이터는 <strong>GitHub Actions</strong>가 매일 <strong>08:00 / 20:00 KST</strong>에 자동 업데이트합니다.<br>
+    잠시 후 <strong>🔄 새로고침</strong> 버튼을 눌러 재로드해 보세요.</p>
   </div>
 
   <!-- KPI -->
@@ -211,7 +211,7 @@
 <script>document.write('<script src="fred_data.js?v='+Date.now()+'" onerror="void 0"><\/script>');</script>
 <script>
 // ============================================================
-// 스케쥄 태스크가 이 줄 아래 FRED_DATA 를 주입합니다
+// 스케줄 태스크가 이 줄 아래 FRED_DATA 를 주입합니다
 // ============================================================
 const FRED_DATA = /*FRED_DATA_PLACEHOLDER*/null/*END_PLACEHOLDER*/;
 
@@ -223,6 +223,108 @@ const TREASURY_IDS = {
 };
 const OTHER_IDS = {T10Y3M:'장단기차(10Y-3M)',SOFR:'SOFR',IORB:'IORB',WDTGAL:'TGA',WRESBAL:'준비금',RRPONTSYD:'ON RRP'};
 const ALL_IDS = {...TREASURY_IDS,...OTHER_IDS};
+
+// ── 반응형 헬퍼 ──
+const isMobile = () => window.innerWidth < 768;
+const isTablet = () => window.innerWidth >= 768 && window.innerWidth < 1100;
+// PC에서만 수치 라벨 전부, 모바일은 핵심 만기만 표시
+const YIELD_LABEL_VISIBILITY = () => {
+  if (isMobile())  return new Set(['3M','2Y','10Y','30Y']);
+  if (isTablet())  return new Set(['1M','3M','1Y','2Y','5Y','10Y','30Y']);
+  return new Set(Object.values(TREASURY_IDS)); // PC: 전부
+};
+// 최신 점 반지름 (모바일이 더 큼 — 작은 화면에서 눈에 띄게)
+const LAST_POINT_RADIUS = () => isMobile() ? 9 : isTablet() ? 8 : 7;
+
+// ── 커스텀 플러그인: 라인 끝에 현재값 라벨 표시 + 최신 시점 세로 가이드 ──
+const endLabelPlugin = {
+  id: 'endLabel',
+  afterDatasetsDraw(chart) {
+    const {ctx, data, chartArea, scales} = chart;
+    if (!chartArea || !scales.x || !scales.y) return;
+    const fontSize = isMobile() ? 10 : 11;
+    ctx.save();
+    ctx.font = `600 ${fontSize}px 'Segoe UI',sans-serif`;
+    ctx.textBaseline = 'middle';
+
+    // 세로 가이드: 가장 오른쪽(최신) x 위치에 옅은 점선
+    const lastX = scales.x.getPixelForValue(data.labels.length - 1);
+    if (isFinite(lastX)) {
+      ctx.save();
+      ctx.setLineDash([3, 4]);
+      ctx.strokeStyle = 'rgba(136,146,164,0.35)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(lastX, chartArea.top);
+      ctx.lineTo(lastX, chartArea.bottom);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // 각 데이터셋의 마지막 값에 라벨
+    data.datasets.forEach((ds, di) => {
+      if (ds.hidden) return;
+      const v = ds.data[ds.data.length - 1];
+      if (v == null || v === '') return;
+      const x = scales.x.getPixelForValue(data.labels.length - 1);
+      const y = scales.y.getPixelForValue(parseFloat(v));
+      if (!isFinite(x) || !isFinite(y)) return;
+
+      const color = typeof ds.borderColor === 'string' ? ds.borderColor : '#fff';
+      const suffix = ds.endLabelSuffix || '';
+      const prefix = ds.endLabelPrefix || '';
+      const num = parseFloat(v);
+      const formatted = Number.isFinite(num) ? num.toFixed(ds.endLabelDigits ?? 2) : v;
+      const text = isMobile()
+        ? `${prefix}${formatted}${suffix}`
+        : `${ds.label}: ${prefix}${formatted}${suffix}`;
+
+      // 배경 박스 (가독성)
+      const pad = 4;
+      const textW = ctx.measureText(text).width;
+      const boxX = Math.min(x + 6, chartArea.right - textW - pad*2);
+      const boxY = y - fontSize/2 - pad;
+      ctx.fillStyle = 'rgba(15,17,23,0.85)';
+      ctx.fillRect(boxX, boxY, textW + pad*2, fontSize + pad*2);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(boxX, boxY, textW + pad*2, fontSize + pad*2);
+      ctx.fillStyle = color;
+      ctx.fillText(text, boxX + pad, y);
+    });
+    ctx.restore();
+  }
+};
+
+// ── 일드커브: 현재(빨간색) 선의 각 포인트 위에 수치 라벨 ──
+const yieldValueLabelPlugin = {
+  id: 'yieldValueLabel',
+  afterDatasetsDraw(chart) {
+    const {ctx, data, scales, chartArea} = chart;
+    if (!chartArea) return;
+    const visibleLabels = YIELD_LABEL_VISIBILITY();
+    const currDs = data.datasets.find(d => d._isCurrent);
+    if (!currDs) return;
+    ctx.save();
+    ctx.font = `600 ${isMobile() ? 9.5 : 11}px 'Segoe UI',sans-serif`;
+    ctx.textBaseline = 'bottom';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#fca5a5';
+    data.labels.forEach((lbl, i) => {
+      if (!visibleLabels.has(lbl)) return;
+      const v = currDs.data[i];
+      if (v == null) return;
+      const x = scales.x.getPixelForValue(i);
+      const y = scales.y.getPixelForValue(parseFloat(v));
+      if (!isFinite(x) || !isFinite(y)) return;
+      ctx.fillText(parseFloat(v).toFixed(2), x, y - 10);
+    });
+    ctx.restore();
+  }
+};
+
+// 플러그인 전역 등록
+if (window.Chart) { Chart.register(endLabelPlugin, yieldValueLabelPlugin); }
 
 let fetched = {};
 let charts  = {};
@@ -251,7 +353,7 @@ function buildTable(sync,prev){
     const tr=document.createElement('tr'); if(sub)tr.className='sub-row';
     const dn=parseFloat(diff), ds=isNaN(dn)?diff:(dn>0?'+':'')+dn.toFixed(sub?4:3);
     const cls=isNaN(dn)?'':cc(dn,inv);
-    // 기준일(syncDate)과 실제 발표일이 다르메 파란색으로 강조
+    // 기준일(syncDate)과 실제 발표일이 다르면 파란색으로 강조
     const dateDiff=refDate&&date&&date!==refDate?`<span style="color:#60a5fa;font-size:10px" title="최신 가용일자 기준">★</span> `:'';
     tr.innerHTML=`<td style="color:var(--muted);font-size:11px">${dateDiff}${date||''}</td><td>${name}</td><td><b>${val}</b></td><td class="${cls}">${ds}</td>`;
     tb.appendChild(tr); };
@@ -308,18 +410,25 @@ const CD=()=>({responsive:true,maintainAspectRatio:false,
           y:{ticks:{color:'#8892a4',font:{size:11}},grid:{color:'#22263a'}}}});
 
 function buildYieldChart(sync){
-  const mk=(label,date,color,lw,dash=[])=>({label,borderColor:color,backgroundColor:'transparent',
-    borderWidth:lw,borderDash:dash,pointRadius:lw>3?5:2,
+  const mk=(label,date,color,lw,dash=[],isCurrent=false)=>({label,borderColor:color,backgroundColor:'transparent',
+    borderWidth:lw,borderDash:dash,
+    pointRadius: isCurrent ? (isMobile()?5:4) : (isMobile()?3:2),
+    pointHoverRadius: isCurrent ? (isMobile()?7:6) : 4,
+    pointBackgroundColor: color, pointBorderColor: color,
+    _isCurrent: isCurrent, // 커스텀 플러그인에서 "현재" 선 식별용
     data:Object.keys(TREASURY_IDS).map(id=>findVal(id,date))});
   const vals=Object.keys(TREASURY_IDS).map(id=>findVal(id,sync)).filter(v=>v!==null);
-  const minY=Math.floor(Math.min(...vals)*10)/10-.2, maxY=Math.ceil(Math.max(...vals)*10)/10+.2;
+  const minY=Math.floor(Math.min(...vals)*10)/10-.3, maxY=Math.ceil(Math.max(...vals)*10)/10+.3;
   if(charts.yield)charts.yield.destroy();
   charts.yield=new Chart(document.getElementById('yieldChart'),{type:'line',
     data:{labels:Object.values(TREASURY_IDS),datasets:[
-      mk('현재',sync,'#ef4444',4),mk('1M 전',pastDate(sync,30),'#f59e0b',2,[5,5]),
-      mk('6M 전',pastDate(sync,180),'#6366f1',2,[5,5]),mk('1Y 전',pastDate(sync,365),'#22c55e',2,[5,5])]},
-    options:{...CD(),scales:{...CD().scales,y:{...CD().scales.y,
-      viewWindow:{min:minY,max:maxY},ticks:{...CD().scales.y.ticks,callback:v=>v!=null?v.toFixed(2)+'%':''}}}}});}
+      mk('현재',sync,'#ef4444',4,[],true),
+      mk('1M 전',pastDate(sync,30),'#f59e0b',2,[5,5]),
+      mk('6M 전',pastDate(sync,180),'#6366f1',2,[5,5]),
+      mk('1Y 전',pastDate(sync,365),'#22c55e',2,[5,5])]},
+    options:{...CD(),layout:{padding:{top:isMobile()?16:22}},
+      scales:{...CD().scales,y:{...CD().scales.y,
+      min:minY,max:maxY,ticks:{...CD().scales.y.ticks,callback:v=>v!=null?v.toFixed(2)+'%':''}}}}});}
 
 function buildSpreadChart(sync){
   // 날짜 오름차순 정렬로 항상 좌=과거, 우=최근 보장
@@ -327,11 +436,19 @@ function buildSpreadChart(sync){
   const labels=[],si=[],ntfs=[],t10=[];
   obs.forEach(o=>{const d=o.date,sv=parseFloat(o.value),iv=findVal('IORB',d),nv=calcNTFS(d),tv=findVal('T10Y3M',d);
     if(!isNaN(sv)&&iv!==null&&nv!==null&&tv!==null){labels.push(d.slice(5));si.push((sv-iv).toFixed(4));ntfs.push(nv.toFixed(4));t10.push(tv.toFixed(4));}});
-  const ds=(label,data,color,lw=2)=>({label,data,borderColor:color,backgroundColor:'transparent',borderWidth:lw,pointRadius:0,tension:.3});
+  // 최신 포인트(마지막 인덱스)에만 큰 원, 나머지는 투명
+  const lastIdx = labels.length - 1;
+  const dynamicRadius = (ctx) => ctx.dataIndex === lastIdx ? LAST_POINT_RADIUS() : 0;
+  const ds=(label,data,color,lw=2,digits=3,suffix='%')=>({label,data,borderColor:color,backgroundColor:color,
+    borderWidth:lw,pointRadius:dynamicRadius,pointHoverRadius:6,tension:.3,
+    endLabelSuffix:suffix, endLabelDigits:digits});
   if(charts.spread)charts.spread.destroy();
+  // 오른쪽 여백 확보 (끝 라벨이 잘리지 않도록)
+  const rightPad = isMobile() ? 50 : 100;
   charts.spread=new Chart(document.getElementById('spreadChart'),{type:'line',
     data:{labels,datasets:[ds('SOFR-IORB',si,'#ef4444',2.5),ds('NTFS',ntfs,'#3b82f6',2),ds('장단기차(10Y-3M)',t10,'#22c55e',2)]},
-    options:{...CD(),scales:{...CD().scales,y:{...CD().scales.y,ticks:{...CD().scales.y.ticks,callback:v=>v!=null?parseFloat(v).toFixed(2)+'%':''}}}}}); }
+    options:{...CD(),layout:{padding:{right:rightPad,top:6}},
+      scales:{...CD().scales,y:{...CD().scales.y,ticks:{...CD().scales.y.ticks,callback:v=>v!=null?parseFloat(v).toFixed(2)+'%':''}}}}}); }
 
 function buildLiquidityChart(){
   // 날짜 오름차순 정렬로 항상 좌=과거, 우=최근 보장
@@ -339,11 +456,17 @@ function buildLiquidityChart(){
   const labels=[],tga=[],res=[],rrp=[];
   obs.forEach(o=>{const tv=findVal('WDTGAL',o.date),rv=parseFloat(o.value),rv2=findVal('RRPONTSYD',o.date);
     if(tv!==null&&rv2!==null){labels.push(o.date.slice(5));tga.push((tv/1000).toFixed(2));res.push((rv/1000).toFixed(2));rrp.push(rv2.toFixed(2));}});
-  const ds=(label,data,color,lw=2)=>({label,data,borderColor:color,backgroundColor:'transparent',borderWidth:lw,pointRadius:0,tension:.3});
+  const lastIdx = labels.length - 1;
+  const dynamicRadius = (ctx) => ctx.dataIndex === lastIdx ? LAST_POINT_RADIUS() : 0;
+  const ds=(label,data,color,lw=2,digits=0,prefix='$',suffix='B')=>({label,data,borderColor:color,backgroundColor:color,
+    borderWidth:lw,pointRadius:dynamicRadius,pointHoverRadius:6,tension:.3,
+    endLabelPrefix:prefix, endLabelSuffix:suffix, endLabelDigits:digits});
   if(charts.liquidity)charts.liquidity.destroy();
+  const rightPad = isMobile() ? 55 : 95;
   charts.liquidity=new Chart(document.getElementById('liquidityChart'),{type:'line',
     data:{labels,datasets:[ds('TGA',tga,'#a78bfa',2),ds('준비금',res,'#ef4444',2.5),ds('ON RRP',rrp,'#3b82f6',2)]},
-    options:{...CD(),scales:{...CD().scales,y:{...CD().scales.y,ticks:{...CD().scales.y.ticks,callback:v=>v!=null?'$'+parseFloat(v).toFixed(0)+'B':''}}}}});}
+    options:{...CD(),layout:{padding:{right:rightPad,top:6}},
+      scales:{...CD().scales,y:{...CD().scales.y,ticks:{...CD().scales.y.ticks,callback:v=>v!=null?'$'+parseFloat(v).toFixed(0)+'B':''}}}}});}
 
 // ── 교차 검증 (외부 API – HTTP 환경에서만 동작, 실패해도 대시보드는 표시) ──
 async function runValidation(sync){
@@ -396,7 +519,7 @@ async function runValidation(sync){
   addItem('TGA 잔고','Treasury',fredTGA,tgaExt!==null?parseFloat(tgaExt)/1000:null,2.0,true);
 
   // ③ 국채 수익률 ─ Treasury.gov 일간 수익률 곡선 XML (실제 시장금리, avg_interest_rate ≠ 시장금리)
-  addSec('⒢ 국채금리  ─  Treasury.gov 일간 수익률 곡선 vs FRED');
+  addSec('③ 국채금리  ─  Treasury.gov 일간 수익률 곡선 vs FRED');
   const ym = sync.substring(0,4)+sync.substring(5,7); // YYYYMM
   const yext = await safe(async()=>{
     const url='https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml'
@@ -438,7 +561,7 @@ async function runValidation(sync){
   badge.textContent=warn>0?`⚠️ ${warn}개 편차`:unavail>0?`⚪ 일부 미응답`:`✅ 전체 통과`;
   const isFile=location.protocol==='file:';
   const corsNote=isFile
-    ?`<span style="color:#f59e0b">⚠️ file:// 환경: 브라우저 CORS 제한으로 NY Fed·Treasury 외부 API가 차단될 수 있습니다. 소스 미응답은 네트워크 오류가 아닌 CORS 제한이 원인입니다.</span>`
+    ?`<span style="color:#f59e0b">⚠️ file:// 환경: 브라우저 CORS 정책으로 NY Fed·Treasury 외부 API가 차단될 수 있습니다. 소스 미응답은 네트워크 오류가 아닌 CORS 제한이 원인입니다.</span>`
     :`<span style="color:#4ade80">🌐 HTTP 환경: 외부 API 교차 검증 정상 동작</span>`;
   summary.innerHTML=`<span style="color:#4ade80">✅ 일치 ${pass}개</span> &nbsp;|&nbsp;
     <span style="color:#fb923c">⚠️ 편차 ${warn}개</span> &nbsp;|&nbsp;
@@ -457,7 +580,7 @@ function renderDashboard(data){
   ['kpiGrid','gridYield','gridCharts','gridTable','validationPanel'].forEach(id=>document.getElementById(id).style.display='');
   document.getElementById('noDataMsg').style.display='none';
 
-  // 타임스패프
+  // 타임스탬프
   document.getElementById('lastUpdated').textContent=D.updatedAt+' | 기준일: '+sync;
 
   // KPI
@@ -487,28 +610,25 @@ function renderDashboard(data){
   runValidation(sync).catch(()=>{});
 }
 
-// ── FRED API 키 (예약 태스크 & 실시간 로드 공용) ──
-const FRED_API_KEY = 'c89d0a7d7e0a7e1800da9f9184e362c7';
-
-// ── FRED API fetch 호출 (FRED는 file:// 오리진에도 CORS 허용) ──
-async function fetchFredSeries(seriesId, limit=500){
-  const url=`https://api.stlouisfed.org/fred/series/observations?series_id=${seriesId}&api_key=${FRED_API_KEY}&file_type=json&sort_order=desc&limit=${limit}`;
-  const res=await fetch(url);
-  const data=await res.json();
-  return (data.observations||[]).map(o=>({date:o.date,value:o.value}));
-}
-
 // ── 새로고침 버튼 (fred_data.js 재로드) ──
+// 데이터는 GitHub Actions가 매일 08:00/20:00 KST에 fred_data.js를 갱신 → 이 페이지는 단순히 재로드만 수행.
 function doRefresh(){
-  // FRED API는 브라우저 CORS 정책으로 직접 호출 불가.
-  // 스케줄 태스크(macro-dashboard-daily)가 업데이트한 fred_data.js를 새로 읽기 위해 페이지 재로드.
   const btn=document.getElementById('refreshBtn');
   if(btn){btn.disabled=true;btn.innerHTML='⏳ 재로드 중…';}
   location.reload();
 }
 
+// ── 윈도우 리사이즈 시 차트 재그리기 (PC ↔ 태블릿 ↔ 모바일 전환) ──
+let _resizeTimer=null;
+window.addEventListener('resize',()=>{
+  clearTimeout(_resizeTimer);
+  _resizeTimer=setTimeout(()=>{
+    if(window._lastPayload) renderDashboard(window._lastPayload);
+  },200);
+});
+
 (async()=>{
-  // ① fred_data.js hex 캐시 우선
+  // ① fred_data.js hex 캐시 (GitHub Actions가 자동 업데이트)
   if(window.FRED_DATA_HEX&&!FRED_DATA){
     try{
       const b=new Uint8Array(window.FRED_DATA_HEX.match(/.{2}/g).map(x=>parseInt(x,16)));
@@ -517,27 +637,15 @@ function doRefresh(){
       while(true){const{done,value}=await rd.read();if(done)break;ch.push(value);}
       const t=ch.reduce((s,c)=>s+c.length,0),o=new Uint8Array(t);
       let off=0;for(const c of ch){o.set(c,off);off+=c.length;}
-      renderDashboard(JSON.parse(new TextDecoder().decode(o)));return;
-    }catch(e){}
+      const payload=JSON.parse(new TextDecoder().decode(o));
+      window._lastPayload=payload;
+      renderDashboard(payload);return;
+    }catch(e){ console.warn('FRED_DATA_HEX 디코드 실패:',e); }
   }
-  // ② 인라인 FRED_DATA
-  if(FRED_DATA){ renderDashboard(FRED_DATA); return; }
+  // ② 인라인 FRED_DATA (테스트용)
+  if(FRED_DATA){ window._lastPayload=FRED_DATA; renderDashboard(FRED_DATA); return; }
 
-  // ③ 실시간 FRED API fetch (FRED는 file:// CORS 허용 — 병렬 요청)
-  try{
-    document.getElementById('lastUpdated').textContent='FRED API 실시간 로딩 중…';
-    const SERIES=['DGS1MO','DGS3MO','DGS6MO','DGS1','DGS2','DGS3','DGS5','DGS7',
-                  'DGS10','DGS20','DGS30','T10Y3M','SOFR','IORB','WDTGAL','WRESBAL','RRPONTSYD'];
-    const results=await Promise.all(SERIES.map(id=>fetchFredSeries(id)));
-    const sd={}; SERIES.forEach((id,i)=>sd[id]=results[i]);
-    const v10=(sd['DGS10']||[]).filter(o=>o.value!=='.');
-    const syncDate=v10.length?v10[0].date:new Date().toISOString().split('T')[0];
-    const prevDate=v10.length>1?v10[1].date:syncDate;
-    renderDashboard({series:sd,syncDate,prevDate,
-      updatedAt:new Date().toLocaleString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})});
-    return;
-  }catch(e){ console.warn('FRED fetch 실패:',e); }
-
+  // ③ 데이터 없음 안내
   renderDashboard();
 })();
 </script>
