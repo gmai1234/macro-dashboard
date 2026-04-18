@@ -571,11 +571,21 @@ async function runValidation(sync){
     if(!d.data?.length) return null;
     const clean = v => (v==null || v==='null' || v==='') ? null : v;
     const isTga = t => /treasury general|federal reserve/i.test(t||'');
-    // 우선순위: Closing Balance → Opening Balance(다음날 오픈=전일 마감) → TGA 포함 아무 row
+    const isClose = t => /closing balance/i.test(t||'');
+    const isOpen  = t => /opening balance/i.test(t||'');
+    // 우선순위 (FRED sync date 기준 동일 날짜 비교 — 교차검증 본연의 의미):
+    //  1) sync 날짜의 Closing Balance
+    //  2) sync 이하 가장 최신의 Closing Balance (주말·공휴일 등으로 sync와 정확히 일치하는 record가 없을 때)
+    //  3) 1·2 실패 시 Opening Balance 동일 폴백
+    //  4) TGA 아무 row (최후의 폴백)
+    const atSync   = x => x.record_date === sync;
+    const beforeEq = x => x.record_date <= sync;
     const candidates = [
-      d.data.find(x => isTga(x.account_type) && /closing balance/i.test(x.account_type)),
-      d.data.find(x => isTga(x.account_type) && /opening balance/i.test(x.account_type)),
-      d.data.find(x => isTga(x.account_type)),
+      d.data.find(x => atSync(x)   && isTga(x.account_type) && isClose(x.account_type)),
+      d.data.find(x => beforeEq(x) && isTga(x.account_type) && isClose(x.account_type)),
+      d.data.find(x => atSync(x)   && isTga(x.account_type) && isOpen(x.account_type)),
+      d.data.find(x => beforeEq(x) && isTga(x.account_type) && isOpen(x.account_type)),
+      d.data.find(x => beforeEq(x) && isTga(x.account_type)),
     ];
     for (const row of candidates) {
       if (!row) continue;
