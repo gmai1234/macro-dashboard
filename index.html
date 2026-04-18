@@ -559,9 +559,9 @@ async function runValidation(sync){
 
   // ② Treasury TGA
   // NOTE: 엔드포인트가 dts_table_1 → operating_cash_balance 로 개명됨 (dts_table_1 는 404).
-  //       account_type naming이 시기별로 다름 ("Federal Reserve Account" → "Treasury General Account (TGA)"
-  //       → "Treasury General Account (TGA) Closing Balance" 등) → 서버 필터 대신 JS에서 유연히 매칭.
-  //       2022-04-18부터 close_today_bal가 null이 될 수 있어 open_today_bal로 폴백.
+  //       현재 스키마(2026-04 확인): 각 row가 별도 metric이고 값은 모두 open_today_bal에 저장,
+  //       close_today_bal는 전부 문자열 "null". account_type이 "Closing Balance"인 row가 당일 마감잔액.
+  //       naming은 시기별로 "Federal Reserve Account" → "Treasury General Account (TGA) Closing Balance" 등 변동.
   addSec('② TGA  ─  U.S. Treasury Fiscal Data vs FRED');
   const tgaExt = await safe(async()=>{
     const url='https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/operating_cash_balance'
@@ -569,12 +569,21 @@ async function runValidation(sync){
       +'&sort=-record_date&page[size]=30';
     const r=await fetch(url); const d=await r.json();
     if(!d.data?.length) return null;
-    // 최신부터 내려오며 "Treasury General" 또는 "Federal Reserve" 포함된 row 선택 (both naming 대응)
-    const row = d.data.find(x => /treasury general/i.test(x.account_type||''))
-             || d.data.find(x => /federal reserve/i.test(x.account_type||''));
-    if(!row) return null;
-    const v = row.close_today_bal ?? row.open_today_bal;
-    return (v==null||v==='null'||v==='')?null:v; });
+    const clean = v => (v==null || v==='null' || v==='') ? null : v;
+    const isTga = t => /treasury general|federal reserve/i.test(t||'');
+    // 우선순위: Closing Balance → Opening Balance(다음날 오픈=전일 마감) → TGA 포함 아무 row
+    const candidates = [
+      d.data.find(x => isTga(x.account_type) && /closing balance/i.test(x.account_type)),
+      d.data.find(x => isTga(x.account_type) && /opening balance/i.test(x.account_type)),
+      d.data.find(x => isTga(x.account_type)),
+    ];
+    for (const row of candidates) {
+      if (!row) continue;
+      // 현재 스키마는 open_today_bal에 값, 과거 스키마 대비해 close_today_bal도 시도
+      const v = clean(row.open_today_bal) ?? clean(row.close_today_bal);
+      if (v != null) return v;
+    }
+    return null; });
   const fredTGA=(()=>{const e=findEntry('WDTGAL',sync);return(e&&e.value!=='.')?parseFloat(e.value)/1000:null;})();
   addItem('TGA 잔고','Treasury',fredTGA,tgaExt!==null?parseFloat(tgaExt)/1000:null,2.0,true);
 
