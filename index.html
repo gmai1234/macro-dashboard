@@ -236,16 +236,21 @@ const YIELD_LABEL_VISIBILITY = () => {
 // 최신 점 반지름 (모바일이 더 큼 — 작은 화면에서 눈에 띄게)
 const LAST_POINT_RADIUS = () => isMobile() ? 9 : isTablet() ? 8 : 7;
 
-// ── 커스텀 플러그인: 라인 끝에 현재값 라벨 표시 + 최신 시점 세로 가이드 ──
+// ── 커스텀 플러그인: 라인 끝에 "콜아웃" 라벨 (차트 바깥 + 리더 라인) + 최신 시점 세로 가이드 ──
+// 박스를 차트 영역 바깥(우측 패딩 존)에 배치해 데이터 라인을 가리지 않도록 설계.
+// 배경은 얇은 테두리만, 다수 라인이 겹치면 세로로 스태킹.
 const endLabelPlugin = {
   id: 'endLabel',
   afterDatasetsDraw(chart) {
     const {ctx, data, chartArea, scales} = chart;
     if (!chartArea || !scales.x || !scales.y) return;
     const fontSize = isMobile() ? 10 : 11;
+    const pad = 4;
+    const boxH = fontSize + pad * 2;
     ctx.save();
     ctx.font = `600 ${fontSize}px 'Segoe UI',sans-serif`;
     ctx.textBaseline = 'middle';
+    ctx.textAlign = 'left';
 
     // 세로 가이드: 가장 오른쪽(최신) x 위치에 옅은 점선
     const lastX = scales.x.getPixelForValue(data.labels.length - 1);
@@ -261,36 +266,73 @@ const endLabelPlugin = {
       ctx.restore();
     }
 
-    // 각 데이터셋의 마지막 값에 라벨
-    data.datasets.forEach((ds, di) => {
+    // 콜아웃 후보 수집 (각 dataset의 마지막 값)
+    const leaderStartX = chartArea.right;         // 리더 시작: 차트 우측 경계
+    const leaderGap    = isMobile() ? 6 : 10;      // 박스까지 수평 여백
+    const boxX         = leaderStartX + leaderGap;
+    const candidates = [];
+    data.datasets.forEach((ds) => {
       if (ds.hidden) return;
       const v = ds.data[ds.data.length - 1];
       if (v == null || v === '') return;
-      const x = scales.x.getPixelForValue(data.labels.length - 1);
       const y = scales.y.getPixelForValue(parseFloat(v));
-      if (!isFinite(x) || !isFinite(y)) return;
-
+      if (!isFinite(y)) return;
       const color = typeof ds.borderColor === 'string' ? ds.borderColor : '#fff';
       const suffix = ds.endLabelSuffix || '';
       const prefix = ds.endLabelPrefix || '';
       const num = parseFloat(v);
       const formatted = Number.isFinite(num) ? num.toFixed(ds.endLabelDigits ?? 2) : v;
+      // 모바일은 공간 부족 → 값만. 데스크탑/태블릿은 "라벨: 값".
       const text = isMobile()
         ? `${prefix}${formatted}${suffix}`
         : `${ds.label}: ${prefix}${formatted}${suffix}`;
+      candidates.push({anchorY: y, color, text, textW: ctx.measureText(text).width});
+    });
 
-      // 배경 박스 (가독성)
-      const pad = 4;
-      const textW = ctx.measureText(text).width;
-      const boxX = Math.min(x + 6, chartArea.right - textW - pad*2);
-      const boxY = y - fontSize/2 - pad;
-      ctx.fillStyle = 'rgba(15,17,23,0.85)';
-      ctx.fillRect(boxX, boxY, textW + pad*2, fontSize + pad*2);
-      ctx.strokeStyle = color;
+    // 세로 충돌 회피: 자연 y 위치에서 겹치면 아래로 밀기
+    candidates.sort((a, b) => a.anchorY - b.anchorY);
+    candidates.forEach((c, i) => {
+      let y = c.anchorY - boxH / 2;
+      if (i > 0) {
+        const minY = candidates[i - 1].boxY + boxH + 3;
+        if (y < minY) y = minY;
+      }
+      // 상/하단 클램프 (최대한 영역 내에 유지)
+      const maxY = chartArea.bottom - boxH;
+      if (y > maxY) y = maxY;
+      if (y < chartArea.top) y = chartArea.top;
+      c.boxY = y;
+    });
+
+    candidates.forEach(c => {
+      const boxW = c.textW + pad * 2;
+      const boxCenterY = c.boxY + boxH / 2;
+
+      // 리더 라인: 점(차트 경계) → 박스 왼쪽. 높이 차 있으면 L자로 꺾음.
+      ctx.strokeStyle = c.color;
       ctx.lineWidth = 1;
-      ctx.strokeRect(boxX, boxY, textW + pad*2, fontSize + pad*2);
-      ctx.fillStyle = color;
-      ctx.fillText(text, boxX + pad, y);
+      ctx.beginPath();
+      ctx.moveTo(leaderStartX, c.anchorY);
+      if (Math.abs(boxCenterY - c.anchorY) > 1.5) {
+        const kink = leaderStartX + Math.max(2, leaderGap - 4);
+        ctx.lineTo(kink, c.anchorY);
+        ctx.lineTo(kink, boxCenterY);
+        ctx.lineTo(boxX - 1, boxCenterY);
+      } else {
+        ctx.lineTo(boxX - 1, c.anchorY);
+      }
+      ctx.stroke();
+
+      // 아주 옅은 배경 (가독성 최소 보장)
+      ctx.fillStyle = 'rgba(15,17,23,0.55)';
+      ctx.fillRect(boxX, c.boxY, boxW, boxH);
+      // 얇은 테두리 (데이터셋 컬러)
+      ctx.strokeStyle = c.color;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(boxX, c.boxY, boxW, boxH);
+      // 텍스트
+      ctx.fillStyle = c.color;
+      ctx.fillText(c.text, boxX + pad, boxCenterY);
     });
     ctx.restore();
   }
@@ -443,8 +485,8 @@ function buildSpreadChart(sync){
     borderWidth:lw,pointRadius:dynamicRadius,pointHoverRadius:6,tension:.3,
     endLabelSuffix:suffix, endLabelDigits:digits});
   if(charts.spread)charts.spread.destroy();
-  // 오른쪽 여백 확보 (끝 라벨이 잘리지 않도록)
-  const rightPad = isMobile() ? 50 : 100;
+  // 오른쪽 여백 확보 (콜아웃 박스가 차트 바깥에 배치되므로 충분히)
+  const rightPad = isMobile() ? 62 : isTablet() ? 120 : 140;
   charts.spread=new Chart(document.getElementById('spreadChart'),{type:'line',
     data:{labels,datasets:[ds('SOFR-IORB',si,'#ef4444',2.5),ds('NTFS',ntfs,'#3b82f6',2),ds('장단기차(10Y-3M)',t10,'#22c55e',2)]},
     options:{...CD(),layout:{padding:{right:rightPad,top:6}},
@@ -462,7 +504,7 @@ function buildLiquidityChart(){
     borderWidth:lw,pointRadius:dynamicRadius,pointHoverRadius:6,tension:.3,
     endLabelPrefix:prefix, endLabelSuffix:suffix, endLabelDigits:digits});
   if(charts.liquidity)charts.liquidity.destroy();
-  const rightPad = isMobile() ? 55 : 95;
+  const rightPad = isMobile() ? 68 : isTablet() ? 115 : 135;
   charts.liquidity=new Chart(document.getElementById('liquidityChart'),{type:'line',
     data:{labels,datasets:[ds('TGA',tga,'#a78bfa',2),ds('준비금',res,'#ef4444',2.5),ds('ON RRP',rrp,'#3b82f6',2)]},
     options:{...CD(),layout:{padding:{right:rightPad,top:6}},
