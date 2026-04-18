@@ -233,8 +233,16 @@ const YIELD_LABEL_VISIBILITY = () => {
   if (isTablet())  return new Set(['1M','3M','1Y','2Y','5Y','10Y','30Y']);
   return new Set(Object.values(TREASURY_IDS)); // PC: 전부
 };
-// 최신 점 반지름 (모바일이 더 큼 — 작은 화면에서 눈에 띄게)
-const LAST_POINT_RADIUS = () => isMobile() ? 9 : isTablet() ? 8 : 7;
+// 최신 점 반지름 — 작게 유지하되 스타일(반투명 채움 + 진한 테두리)로 시인성 보완
+// 너무 크면 데이터 라인 모양을 가림 (특히 모바일)
+const LAST_POINT_RADIUS = () => isMobile() ? 6 : isTablet() ? 5 : 4;
+
+// hex(#rrggbb) → rgba(r,g,b,a). 내부 반투명 채움으로 라인 통과 시인성 확보.
+const hexToRgba = (hex, a) => {
+  const m = (hex||'').match(/^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+  if (!m) return hex;
+  return `rgba(${parseInt(m[1],16)},${parseInt(m[2],16)},${parseInt(m[3],16)},${a})`;
+};
 
 // ── 커스텀 플러그인: 라인 끝에 "콜아웃" 라벨 (차트 바깥 + 리더 라인) + 최신 시점 세로 가이드 ──
 // 박스를 차트 영역 바깥(우측 패딩 존)에 배치해 데이터 라인을 가리지 않도록 설계.
@@ -457,9 +465,13 @@ const CD=()=>({responsive:true,maintainAspectRatio:false,
 function buildYieldChart(sync){
   const mk=(label,date,color,lw,dash=[],isCurrent=false)=>({label,borderColor:color,backgroundColor:'transparent',
     borderWidth:lw,borderDash:dash,
-    pointRadius: isCurrent ? (isMobile()?5:4) : (isMobile()?3:2),
-    pointHoverRadius: isCurrent ? (isMobile()?7:6) : 4,
-    pointBackgroundColor: color, pointBorderColor: color,
+    // 현재 선: 축소(4/3) + 반투명 채움 + 진한 테두리로 라인 모양 덜 가림
+    // 과거 선: 작은 실심 점으로 유지
+    pointRadius: isCurrent ? (isMobile()?4:3) : (isMobile()?2.5:2),
+    pointHoverRadius: isCurrent ? (isMobile()?6:5) : 4,
+    pointBackgroundColor: isCurrent ? hexToRgba(color, 0.35) : color,
+    pointBorderColor: color,
+    pointBorderWidth: isCurrent ? 2 : 1,
     _isCurrent: isCurrent, // 커스텀 플러그인에서 "현재" 선 식별용
     data:Object.keys(TREASURY_IDS).map(id=>findVal(id,date))});
   const vals=Object.keys(TREASURY_IDS).map(id=>findVal(id,sync)).filter(v=>v!==null);
@@ -486,6 +498,9 @@ function buildSpreadChart(sync){
   const dynamicRadius = (ctx) => ctx.dataIndex === lastIdx ? LAST_POINT_RADIUS() : 0;
   const ds=(label,data,color,lw=2,digits=3,suffix='%')=>({label,data,borderColor:color,backgroundColor:color,
     borderWidth:lw,pointRadius:dynamicRadius,pointHoverRadius:6,tension:.3,
+    pointBackgroundColor: hexToRgba(color, 0.35),
+    pointBorderColor: color,
+    pointBorderWidth: 2,
     endLabelSuffix:suffix, endLabelDigits:digits});
   if(charts.spread)charts.spread.destroy();
   // 오른쪽 여백 확보 (콜아웃 박스가 차트 바깥에 배치되므로 충분히)
@@ -507,6 +522,9 @@ function buildLiquidityChart(){
   const dynamicRadius = (ctx) => ctx.dataIndex === lastIdx ? LAST_POINT_RADIUS() : 0;
   const ds=(label,data,color,lw=2,digits=0,prefix='$',suffix='B')=>({label,data,borderColor:color,backgroundColor:color,
     borderWidth:lw,pointRadius:dynamicRadius,pointHoverRadius:6,tension:.3,
+    pointBackgroundColor: hexToRgba(color, 0.35),
+    pointBorderColor: color,
+    pointBorderWidth: 2,
     endLabelPrefix:prefix, endLabelSuffix:suffix, endLabelDigits:digits});
   if(charts.liquidity)charts.liquidity.destroy();
   const rightPad = isMobile() ? 68 : isTablet() ? 115 : 135;
