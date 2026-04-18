@@ -549,20 +549,29 @@ async function runValidation(sync){
   const safe=async fn=>{ try{return await fn();}catch{return null;} };
 
   // ① NY Fed SOFR
+  // NOTE: 2024~2025년경 NY Fed API 경로가 /api/rates/secured/sofr/... 로 변경됨.
+  //       이전 /api/rates/sofr/... 는 HTTP 400 반환.
   addSec('① SOFR  ─  NY Fed 공식 API vs FRED');
   const nyfed = await safe(async()=>{
-    const r=await fetch('https://markets.newyorkfed.org/api/rates/sofr/last/5.json');
+    const r=await fetch('https://markets.newyorkfed.org/api/rates/secured/sofr/last/5.json');
     const d=await r.json(); return (d.refRates||[])[0]?.percentRate??null; });
   addItem('SOFR','NY Fed',findVal('SOFR',sync),nyfed!==null?parseFloat(nyfed):null,0.005);
 
   // ② Treasury TGA
+  // NOTE: Treasury Fiscal Data API는 /services/api/fiscal_service/v1/... 경로를 사용.
+  //       2021-10-01부터 account_type이 'Federal Reserve Account' → 'Treasury General Account (TGA) Closing Balance'로 변경.
+  //       2022-04-18부터 close_today_bal가 null이 될 수 있어 open_today_bal로 폴백.
   addSec('② TGA  ─  U.S. Treasury Fiscal Data vs FRED');
   const tgaExt = await safe(async()=>{
-    const url='https://api.fiscaldata.treasury.gov/services/api/v1/accounting/dts/dts_table_1'
-      +'?fields=record_date,account_type,close_today_bal'
-      +'&filter=account_type:eq:Federal%20Reserve%20Account&sort=-record_date&page[size]=5';
+    const url='https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/dts_table_1'
+      +'?fields=record_date,account_type,open_today_bal,close_today_bal'
+      +'&filter=account_type:eq:Treasury%20General%20Account%20(TGA)%20Closing%20Balance'
+      +'&sort=-record_date&page[size]=5';
     const r=await fetch(url); const d=await r.json();
-    return d.data?.[0]?.close_today_bal??null; });
+    const row=d.data?.[0]; if(!row) return null;
+    // close_today_bal 우선, 없으면 open_today_bal 사용
+    const v = row.close_today_bal ?? row.open_today_bal;
+    return (v==null||v==='null'||v==='')?null:v; });
   const fredTGA=(()=>{const e=findEntry('WDTGAL',sync);return(e&&e.value!=='.')?parseFloat(e.value)/1000:null;})();
   addItem('TGA 잔고','Treasury',fredTGA,tgaExt!==null?parseFloat(tgaExt)/1000:null,2.0,true);
 
