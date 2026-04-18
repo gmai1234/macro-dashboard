@@ -241,7 +241,10 @@ const LAST_POINT_RADIUS = () => isMobile() ? 9 : isTablet() ? 8 : 7;
 // 배경은 얇은 테두리만, 다수 라인이 겹치면 세로로 스태킹.
 const endLabelPlugin = {
   id: 'endLabel',
-  afterDatasetsDraw(chart) {
+  defaults: { enabled: false },
+  afterDatasetsDraw(chart, args, opts) {
+    // 옵트인: options.plugins.endLabel.enabled === true 인 차트에서만 동작
+    if (!opts || opts.enabled !== true) return;
     const {ctx, data, chartArea, scales} = chart;
     if (!chartArea || !scales.x || !scales.y) return;
     const fontSize = isMobile() ? 10 : 11;
@@ -486,10 +489,12 @@ function buildSpreadChart(sync){
     endLabelSuffix:suffix, endLabelDigits:digits});
   if(charts.spread)charts.spread.destroy();
   // 오른쪽 여백 확보 (콜아웃 박스가 차트 바깥에 배치되므로 충분히)
-  const rightPad = isMobile() ? 62 : isTablet() ? 120 : 140;
+  // 가장 긴 라벨 "장단기차(10Y-3M): 0.123%" 수용
+  const rightPad = isMobile() ? 62 : isTablet() ? 140 : 170;
   charts.spread=new Chart(document.getElementById('spreadChart'),{type:'line',
     data:{labels,datasets:[ds('SOFR-IORB',si,'#ef4444',2.5),ds('NTFS',ntfs,'#3b82f6',2),ds('장단기차(10Y-3M)',t10,'#22c55e',2)]},
     options:{...CD(),layout:{padding:{right:rightPad,top:6}},
+      plugins:{...CD().plugins, endLabel:{enabled:true}},
       scales:{...CD().scales,y:{...CD().scales.y,ticks:{...CD().scales.y.ticks,callback:v=>v!=null?parseFloat(v).toFixed(2)+'%':''}}}}}); }
 
 function buildLiquidityChart(){
@@ -508,6 +513,7 @@ function buildLiquidityChart(){
   charts.liquidity=new Chart(document.getElementById('liquidityChart'),{type:'line',
     data:{labels,datasets:[ds('TGA',tga,'#a78bfa',2),ds('준비금',res,'#ef4444',2.5),ds('ON RRP',rrp,'#3b82f6',2)]},
     options:{...CD(),layout:{padding:{right:rightPad,top:6}},
+      plugins:{...CD().plugins, endLabel:{enabled:true}},
       scales:{...CD().scales,y:{...CD().scales.y,ticks:{...CD().scales.y.ticks,callback:v=>v!=null?'$'+parseFloat(v).toFixed(0)+'B':''}}}}});}
 
 // ── 교차 검증 (외부 API – HTTP 환경에서만 동작, 실패해도 대시보드는 표시) ──
