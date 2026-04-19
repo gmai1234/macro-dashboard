@@ -235,7 +235,13 @@ const YIELD_LABEL_VISIBILITY = () => {
 };
 // 최신 점 반지름 — 작게 유지하되 스타일(반투명 채움 + 진한 테두리)로 시인성 보완
 // 너무 크면 데이터 라인 모양을 가림 (특히 모바일)
-const LAST_POINT_RADIUS = () => isMobile() ? 2 : isTablet() ? 2.5 : 3;
+const LAST_POINT_RADIUS = () => isMobile() ? 1.5 : isTablet() ? 2.5 : 3;
+
+// 모바일: 선 두께 축소 (그래프 움직임을 그리드 대비 선명하게 보기 위함)
+const LW = (lw) => isMobile() ? +(lw * 0.65).toFixed(2) : lw;
+// 모바일/태블릿에서만 그리드 색을 좀 더 밝게 + 두껍게 (보조선 가시성)
+const GRID_COLOR = () => (isMobile() || isTablet()) ? '#454a65' : '#22263a';
+const GRID_WIDTH = () => (isMobile() || isTablet()) ? 1.2 : 1;
 
 // hex(#rrggbb) → rgba(r,g,b,a). 내부 반투명 채움으로 라인 통과 시인성 확보.
 const hexToRgba = (hex, a) => {
@@ -459,16 +465,17 @@ function buildTable(sync,prev){
 const CD=()=>({responsive:true,maintainAspectRatio:false,
   plugins:{legend:{position:'top',labels:{color:'#8892a4',font:{size:11},boxWidth:12}},
     tooltip:{mode:'index',intersect:false,backgroundColor:'#1a1d27',borderColor:'#2a2d3a',borderWidth:1,titleColor:'#e2e8f0',bodyColor:'#8892a4'}},
-  scales:{x:{ticks:{color:'#8892a4',font:{size:10},maxTicksLimit:8},grid:{color:'#22263a'}},
-          y:{ticks:{color:'#8892a4',font:{size:11}},grid:{color:'#22263a'}}}});
+  scales:{x:{ticks:{color:'#8892a4',font:{size:10},maxTicksLimit:8},grid:{color:GRID_COLOR(),lineWidth:GRID_WIDTH()}},
+          y:{ticks:{color:'#8892a4',font:{size:11}},grid:{color:GRID_COLOR(),lineWidth:GRID_WIDTH()}}}});
 
 function buildYieldChart(sync){
   const mk=(label,date,color,lw,dash=[],isCurrent=false)=>({label,borderColor:color,backgroundColor:'transparent',
-    borderWidth:lw,borderDash:dash,
-    // 현재 선: 축소(4/3) + 반투명 채움 + 진한 테두리로 라인 모양 덜 가림
+    borderWidth:LW(lw),borderDash:dash,
+    // 현재 선: 축소 + 반투명 채움 + 진한 테두리로 라인 모양 덜 가림
     // 과거 선: 작은 실심 점으로 유지
-    pointRadius: isCurrent ? (isMobile()?4:3) : (isMobile()?2.5:2),
-    pointHoverRadius: isCurrent ? (isMobile()?6:5) : 4,
+    // 모바일에서는 현재/과거 모두 축소 (라인 가독성 우선)
+    pointRadius: isCurrent ? (isMobile()?3:3) : (isMobile()?2:2),
+    pointHoverRadius: isCurrent ? (isMobile()?5:5) : 4,
     pointBackgroundColor: isCurrent ? hexToRgba(color, 0.35) : color,
     pointBorderColor: color,
     pointBorderWidth: isCurrent ? 2 : 1,
@@ -497,10 +504,10 @@ function buildSpreadChart(sync){
   const lastIdx = labels.length - 1;
   const dynamicRadius = (ctx) => ctx.dataIndex === lastIdx ? LAST_POINT_RADIUS() : 0;
   const ds=(label,data,color,lw=2,digits=3,suffix='%')=>({label,data,borderColor:color,backgroundColor:color,
-    borderWidth:lw,pointRadius:dynamicRadius,pointHoverRadius:6,tension:.3,
+    borderWidth:LW(lw),pointRadius:dynamicRadius,pointHoverRadius:6,tension:.3,
     pointBackgroundColor: hexToRgba(color, 0.35),
     pointBorderColor: color,
-    pointBorderWidth: 2,
+    pointBorderWidth: isMobile() ? 1.5 : 2,
     endLabelSuffix:suffix, endLabelDigits:digits});
   if(charts.spread)charts.spread.destroy();
   // 오른쪽 여백 확보 (콜아웃 박스가 차트 바깥에 배치되므로 충분히)
@@ -521,10 +528,10 @@ function buildLiquidityChart(){
   const lastIdx = labels.length - 1;
   const dynamicRadius = (ctx) => ctx.dataIndex === lastIdx ? LAST_POINT_RADIUS() : 0;
   const ds=(label,data,color,lw=2,digits=0,prefix='$',suffix='B')=>({label,data,borderColor:color,backgroundColor:color,
-    borderWidth:lw,pointRadius:dynamicRadius,pointHoverRadius:6,tension:.3,
+    borderWidth:LW(lw),pointRadius:dynamicRadius,pointHoverRadius:6,tension:.3,
     pointBackgroundColor: hexToRgba(color, 0.35),
     pointBorderColor: color,
-    pointBorderWidth: 2,
+    pointBorderWidth: isMobile() ? 1.5 : 2,
     endLabelPrefix:prefix, endLabelSuffix:suffix, endLabelDigits:digits});
   if(charts.liquidity)charts.liquidity.destroy();
   const rightPad = isMobile() ? 68 : isTablet() ? 115 : 135;
