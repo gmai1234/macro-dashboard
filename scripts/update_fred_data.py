@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Macro Dashboard Data Collector
-- Fetches 17 FRED series (Treasury yields, spreads, policy rates, liquidity)
+- Fetches 23 FRED series (Treasury yields, spreads, policy rates, liquidity, inflation)
 - Outputs fred_data.js with deflate-raw compressed hex of JSON
 - Compatible with index.html (window.FRED_DATA_HEX consumer)
 
@@ -27,7 +27,7 @@ from datetime import datetime, timezone, timedelta
 
 FRED_API_KEY = os.environ.get("FRED_API_KEY", "").strip()
 
-# 17 series — keep order consistent with historic layout
+# 23 series — keep order consistent with historic layout
 SERIES = [
     # Treasury yields (11)
     "DGS1MO", "DGS3MO", "DGS6MO", "DGS1", "DGS2", "DGS3", "DGS5",
@@ -38,6 +38,8 @@ SERIES = [
     "SOFR", "IORB",
     # Liquidity / balance sheet (3)
     "WDTGAL", "WRESBAL", "RRPONTSYD",
+    # Inflation (6) - added 2026-05-16
+    "CPIAUCSL", "CPILFESL", "PCEPI", "PCEPILFE", "PPIACO", "T5YIE",
 ]
 
 # Per-series observation limit — keeps bundle size modest while preserving
